@@ -1,21 +1,18 @@
 package com.snowtheghost.redistributor.api.controllers;
 
 import com.snowtheghost.redistributor.api.models.requests.CreateUserRequest;
+import com.snowtheghost.redistributor.api.models.requests.LoginUserRequest;
 import com.snowtheghost.redistributor.api.models.responses.GetUserResponse;
 import com.snowtheghost.redistributor.database.models.User;
+import com.snowtheghost.redistributor.infrastructure.authentication.JwtTokenProvider;
 import com.snowtheghost.redistributor.services.UserService;
+import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -25,27 +22,37 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, JwtTokenProvider jwtTokenProvider) {
         this.userService = userService;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<Void> createUser(@RequestBody CreateUserRequest request) {
         String userId = UUID.randomUUID().toString();
         String email = request.getEmail();
         String encryptedPassword;
-        try {
-            encryptedPassword = userService.encryptPassword(request.getPassword());
-        } catch (NoSuchAlgorithmException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        encryptedPassword = userService.encryptPassword(request.getPassword());
 
         User user = new User(userId, email, encryptedPassword);
         userService.createUser(user);
 
-        return ResponseEntity.created(URI.create(String.format("localhost:8080/users/%s", userId))).build();
+        String token = jwtTokenProvider.generateToken(user.getUserId());
+        return ResponseEntity.created(URI.create(String.format("localhost:8080/users/%s", userId))).header("Authorization", "Bearer " + token).build();
+    }
+
+    @PostMapping("/login")
+    @PermitAll
+    public ResponseEntity<Void> loginUser(@RequestBody LoginUserRequest request) {
+        User user = userService.getUserByEmail(request.getEmail());
+        if (userService.isValidCredentials(user, request.getEmail(), request.getPassword())) {
+            String token = jwtTokenProvider.generateToken(user.getUserId());
+            return ResponseEntity.ok().header("Authorization", "Bearer " + token).build();
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
     @GetMapping("/{userId}")

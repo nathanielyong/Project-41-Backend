@@ -27,8 +27,22 @@ public class UserService {
         return userRepository.getReferenceById(userId);
     }
 
-    public String encryptPassword(String password) throws NoSuchAlgorithmException {
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA3-256");
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public boolean isValidCredentials(User user, String email, String password) {
+        return user.getEmail().equals(email) && user.getEncryptedPassword().equals(encryptPassword(password));
+    }
+
+    public String encryptPassword(String password) {
+        MessageDigest messageDigest;
+        try {
+            messageDigest = MessageDigest.getInstance("SHA3-256");
+        } catch (NoSuchAlgorithmException exception) {
+            throw new RuntimeException();
+        }
+
         final byte[] bytes = messageDigest.digest(password.getBytes(StandardCharsets.UTF_8));
         return bytesToHex(bytes);
     }
