@@ -7,7 +7,9 @@ import com.snowtheghost.redistributor.database.models.User;
 import com.snowtheghost.redistributor.infrastructure.authentication.JwtTokenProvider;
 import com.snowtheghost.redistributor.services.UserService;
 import jakarta.annotation.security.PermitAll;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,9 +38,13 @@ public class UserController {
         String email = request.getEmail();
         String encryptedPassword;
         encryptedPassword = userService.encryptPassword(request.getPassword());
-
         User user = new User(userId, email, encryptedPassword);
-        userService.createUser(user);
+
+        try {
+            userService.createUser(user);
+        } catch (DataIntegrityViolationException exception) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
 
         String token = jwtTokenProvider.generateToken(user.getUserId());
         return ResponseEntity.created(URI.create(String.format("localhost:8080/users/%s", userId))).header("Authorization", "Bearer " + token).build();
@@ -48,16 +54,23 @@ public class UserController {
     @PermitAll
     public ResponseEntity<Void> loginUser(@RequestBody LoginUserRequest request) {
         User user = userService.getUserByEmail(request.getEmail());
-        if (userService.isValidCredentials(user, request.getEmail(), request.getPassword())) {
+
+        if (user != null && userService.isValidCredentials(user, request.getEmail(), request.getPassword())) {
             String token = jwtTokenProvider.generateToken(user.getUserId());
             return ResponseEntity.ok().header("Authorization", "Bearer " + token).build();
         }
+
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<GetUserResponse> getGame(@PathVariable String userId) {
-        User user = userService.getUser(userId);
+        User user;
+        try {
+            user = userService.getUser(userId);
+        } catch (EntityNotFoundException exception) {
+            return ResponseEntity.notFound().build();
+        }
 
         GetUserResponse response = new GetUserResponse(userId, user.getEmail(), user.getGames().stream().map(gamePlayer -> gamePlayer.getGame().getGameId()).collect(Collectors.toList()));
         return ResponseEntity.ok(response);

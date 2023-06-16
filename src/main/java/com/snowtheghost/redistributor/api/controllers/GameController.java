@@ -7,16 +7,10 @@ import com.snowtheghost.redistributor.database.models.User;
 import com.snowtheghost.redistributor.services.GamePlayerService;
 import com.snowtheghost.redistributor.services.GameService;
 import com.snowtheghost.redistributor.services.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.UUID;
@@ -50,7 +44,12 @@ public class GameController {
 
     @GetMapping("/{gameId}")
     public ResponseEntity<GetGameResponse> getGame(@PathVariable String gameId) {
-        Game game = gameService.getGame(gameId);
+        Game game;
+        try {
+            game = gameService.getGame(gameId);
+        } catch (EntityNotFoundException exception) {
+            return ResponseEntity.notFound().build();
+        }
 
         GetGameResponse response = new GetGameResponse(game.getGameId(), game.getCapacity(), game.getPlayers().stream().map(gamePlayer -> gamePlayer.getUser().getEmail()).collect(Collectors.toList()));
         return ResponseEntity.ok(response);
@@ -58,9 +57,17 @@ public class GameController {
 
     @PutMapping("/{gameId}/join")
     public ResponseEntity<Void> joinGame(@PathVariable("gameId") String gameId, @RequestBody JoinGameRequest request) {
-        Game game = gameService.getGame(gameId);
-        User user = userService.getUser(request.getUserId());
+        Game game;
+        User user;
+        try {
+            game = gameService.getGame(gameId);
+            user = userService.getUser(request.getUserId());
+        } catch (EntityNotFoundException exception) {
+            return ResponseEntity.notFound().build();
+        }
+
         gamePlayerService.joinGame(game, user);
+
         return ResponseEntity.noContent().build();
     }
 }
