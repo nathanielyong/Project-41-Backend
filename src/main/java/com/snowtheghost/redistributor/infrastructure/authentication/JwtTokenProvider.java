@@ -17,7 +17,7 @@ public class JwtTokenProvider {
     @Value("${app.jwtExpirationMs}")
     private long jwtExpirationMs;
 
-    public String extractUserId(String token) {
+    public String getUserId(String token) {
         Claims claims = Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(jwtSecret.getBytes())).build().parseClaimsJws(token).getBody();
         return claims.getSubject();
     }
@@ -43,10 +43,5 @@ public class JwtTokenProvider {
             // Handle token validation failure
         }
         return false;
-    }
-
-    public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parserBuilder().setSigningKey(jwtSecret.getBytes()).build().parseClaimsJws(token).getBody();
-        return claims.getSubject();
     }
 }

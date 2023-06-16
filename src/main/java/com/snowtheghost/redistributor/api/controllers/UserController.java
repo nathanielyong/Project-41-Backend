@@ -3,8 +3,9 @@ package com.snowtheghost.redistributor.api.controllers;
 import com.snowtheghost.redistributor.api.models.requests.CreateUserRequest;
 import com.snowtheghost.redistributor.api.models.requests.LoginUserRequest;
 import com.snowtheghost.redistributor.api.models.responses.GetUserResponse;
+import com.snowtheghost.redistributor.api.models.responses.LoginResponse;
 import com.snowtheghost.redistributor.database.models.User;
-import com.snowtheghost.redistributor.infrastructure.authentication.JwtTokenProvider;
+import com.snowtheghost.redistributor.services.AuthenticationService;
 import com.snowtheghost.redistributor.services.UserService;
 import jakarta.annotation.security.PermitAll;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,12 +25,12 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final AuthenticationService authenticationService;
 
     @Autowired
-    public UserController(UserService userService, JwtTokenProvider jwtTokenProvider) {
+    public UserController(UserService userService, AuthenticationService authenticationService) {
         this.userService = userService;
-        this.jwtTokenProvider = jwtTokenProvider;
+        this.authenticationService = authenticationService;
     }
 
     @PostMapping("/register")
@@ -46,18 +47,18 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
 
-        String token = jwtTokenProvider.generateToken(user.getUserId());
+        String token = authenticationService.generateToken(user.getUserId());
         return ResponseEntity.created(URI.create(String.format("localhost:8080/users/%s", userId))).header("Authorization", "Bearer " + token).build();
     }
 
     @PostMapping("/login")
     @PermitAll
-    public ResponseEntity<Void> loginUser(@RequestBody LoginUserRequest request) {
+    public ResponseEntity<LoginResponse> loginUser(@RequestBody LoginUserRequest request) {
         User user = userService.getUserByEmail(request.getEmail());
 
         if (user != null && userService.isValidCredentials(user, request.getEmail(), request.getPassword())) {
-            String token = jwtTokenProvider.generateToken(user.getUserId());
-            return ResponseEntity.ok().header("Authorization", "Bearer " + token).build();
+            String token = authenticationService.generateToken(user.getUserId());
+            return ResponseEntity.ok(new LoginResponse(token));
         }
 
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

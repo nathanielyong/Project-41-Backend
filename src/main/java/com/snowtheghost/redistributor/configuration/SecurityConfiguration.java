@@ -4,6 +4,7 @@ import com.snowtheghost.redistributor.infrastructure.authentication.JwtAuthentic
 import com.snowtheghost.redistributor.infrastructure.authentication.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,6 +28,7 @@ public class SecurityConfiguration {
         http.csrf(AbstractHttpConfigurer::disable);
         http.addFilterBefore(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
         http.authorizeHttpRequests((requests) -> requests.requestMatchers("/users/register").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS).permitAll() // Allow preflight requests
                 .requestMatchers("/users/login").permitAll()
                 .requestMatchers("/error").permitAll()
                 .requestMatchers("/**").authenticated());
