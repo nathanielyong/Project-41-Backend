@@ -1,5 +1,6 @@
 package com.snowtheghost.redistributor.api.controllers;
 
+import com.snowtheghost.redistributor.api.models.requests.CreateGameRequest;
 import com.snowtheghost.redistributor.api.models.responses.GetGameResponse;
 import com.snowtheghost.redistributor.database.models.Game;
 import com.snowtheghost.redistributor.database.models.User;
@@ -16,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -41,13 +44,12 @@ public class GameController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createGame() {
+    public ResponseEntity<GetGameResponse> createGame(@RequestBody CreateGameRequest request) {
         String gameId = UUID.randomUUID().toString();
-        int capacity = 10;
-        Game game = new Game(gameId, capacity);
+        Game game = new Game(gameId, request.getCapacity(), request.getCost(), request.getType());
         gameService.createGame(game);
 
-        return ResponseEntity.created(URI.create(String.format("localhost:8080/games/%s", gameId))).build();
+        return new ResponseEntity<GetGameResponse>(new GetGameResponse(gameId), HttpStatus.CREATED);
     }
 
     @GetMapping("/{gameId}")
@@ -61,6 +63,16 @@ public class GameController {
 
         GetGameResponse response = new GetGameResponse(game.getGameId(), game.getCapacity(), game.getPlayers().stream().map(gamePlayer -> gamePlayer.getUser().getEmail()).collect(Collectors.toList()));
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping()
+    public ResponseEntity<GetGamesResponse> getGames(@RequestBody GetGamesRequest request) {
+        List<Game> games;
+        try {
+            games = gameService.getGames(request.capacity, request.cost, request.type.toString());
+        } catch (EntityNotFoundException exception) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PutMapping("/{gameId}/join")
