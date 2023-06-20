@@ -17,5 +17,5 @@ public class GetUserResponse {
     private String email;
 
     @JsonProperty
-    private List<String> games;
+    private List<GetGameResponse> games;
 }

@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @AllArgsConstructor
-public class CreateGameResponse {
+public class GetGamesResponse {
 
     @JsonProperty
-    private String gameId;
+    private List<GetGameResponse> games;
 }

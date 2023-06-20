@@ -1,8 +1,9 @@
 package com.snowtheghost.redistributor.api.models.responses;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.snowtheghost.redistributor.database.models.GamePlayer;
+import com.snowtheghost.redistributor.database.models.Game;
 import lombok.AllArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -17,5 +18,14 @@ public class GetGameResponse {
     private int capacity;
 
     @JsonProperty
-    private List<String> players;
+    private int cost;
+
+    @JsonProperty
+    private Game.Type type;
+
+    @JsonProperty
+    private Game.State state;
+
+    @JsonProperty
+    private List<String> playerEmails;
 }

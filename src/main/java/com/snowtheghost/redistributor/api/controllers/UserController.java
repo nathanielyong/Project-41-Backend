@@ -2,8 +2,10 @@ package com.snowtheghost.redistributor.api.controllers;
 
 import com.snowtheghost.redistributor.api.models.requests.CreateUserRequest;
 import com.snowtheghost.redistributor.api.models.requests.LoginUserRequest;
+import com.snowtheghost.redistributor.api.models.responses.GetGameResponse;
 import com.snowtheghost.redistributor.api.models.responses.GetUserResponse;
 import com.snowtheghost.redistributor.api.models.responses.LoginResponse;
+import com.snowtheghost.redistributor.database.models.Game;
 import com.snowtheghost.redistributor.database.models.User;
 import com.snowtheghost.redistributor.services.AuthenticationService;
 import com.snowtheghost.redistributor.services.UserService;
@@ -11,6 +13,7 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -65,7 +68,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<GetUserResponse> getGame(@PathVariable String userId) {
+    public ResponseEntity<GetUserResponse> getUser(@PathVariable String userId) {
         User user;
         try {
             user = userService.getUser(userId);
@@ -73,7 +76,29 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
 
-        GetUserResponse response = new GetUserResponse(userId, user.getEmail(), user.getGames().stream().map(gamePlayer -> gamePlayer.getGame().getGameId()).collect(Collectors.toList()));
+        return getUserResponse(userId, user);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<GetUserResponse> getActiveUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken) {
+        String userId;
+        User user;
+
+        try {
+            userId = authenticationService.getUserId(bearerToken);
+            user = userService.getUser(userId);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return getUserResponse(userId, user);
+    }
+
+    private ResponseEntity<GetUserResponse> getUserResponse(String userId, User user) {
+        GetUserResponse response = new GetUserResponse(userId, user.getEmail(), user.getGames().stream().map(gamePlayer -> {
+            Game game = gamePlayer.getGame();
+            return new GetGameResponse(game.getGameId(), game.getCapacity(), game.getCost(), game.getType(), game.getState(), game.getPlayerEmails());
+        }).collect(Collectors.toList()));
         return ResponseEntity.ok(response);
     }
 }

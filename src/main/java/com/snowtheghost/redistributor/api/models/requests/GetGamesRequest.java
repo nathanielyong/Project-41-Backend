@@ -1,18 +1,21 @@
 package com.snowtheghost.redistributor.api.models.requests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
 import com.snowtheghost.redistributor.database.models.Game;
+import lombok.Getter;
 
 @Getter
-public class  CreateGameRequest {
+public class GetGamesRequest {
 
     @JsonProperty
-    private int capacity;
+    private Integer capacity;
 
     @JsonProperty
-    private int cost;
+    private Integer cost;
 
     @JsonProperty
     private Game.Type type;
+
+    @JsonProperty
+    private Game.State state;
 }
