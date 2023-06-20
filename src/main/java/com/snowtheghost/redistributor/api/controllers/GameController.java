@@ -67,7 +67,8 @@ public class GameController {
                 game.getCost(),
                 game.getType(),
                 game.getState(),
-                game.getPlayerUsernames()
+                game.getPlayerUsernames(),
+                game.getWinnerUsernamesToEarnings()
         );
         return ResponseEntity.ok(response);
     }
@@ -86,7 +87,15 @@ public class GameController {
             return ResponseEntity.notFound().build();
         }
 
-        List<GetGameResponse> responseGames = games.stream().map(game -> new GetGameResponse(game.getGameId(), game.getCapacity(), game.getCost(), game.getType(), game.getState(), game.getPlayerUsernames())).collect(Collectors.toList());
+        List<GetGameResponse> responseGames = games.stream().map(game -> new GetGameResponse(
+                game.getGameId(),
+                game.getCapacity(),
+                game.getCost(),
+                game.getType(),
+                game.getState(),
+                game.getPlayerUsernames(),
+                game.getWinnerUsernamesToEarnings()
+        )).collect(Collectors.toList());
 
         return ResponseEntity.ok(new GetGamesResponse(responseGames));
     }
@@ -107,6 +116,8 @@ public class GameController {
             gamePlayerService.joinGame(game, user);
         } catch (DataIntegrityViolationException exception) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (IllegalStateException exception) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         return ResponseEntity.noContent().build();

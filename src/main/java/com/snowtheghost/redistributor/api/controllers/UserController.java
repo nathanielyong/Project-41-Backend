@@ -94,7 +94,15 @@ public class UserController {
     private ResponseEntity<GetUserResponse> getUserResponse(String userId, User user) {
         GetUserResponse response = new GetUserResponse(userId, user.getEmail(), user.getGames().stream().map(gamePlayer -> {
             Game game = gamePlayer.getGame();
-            return new GetGameResponse(game.getGameId(), game.getCapacity(), game.getCost(), game.getType(), game.getState(), game.getPlayerUsernames());
+            return new GetGameResponse(
+                    game.getGameId(),
+                    game.getCapacity(),
+                    game.getCost(),
+                    game.getType(),
+                    game.getState(),
+                    game.getPlayerUsernames(),
+                    game.getWinnerUsernamesToEarnings()
+            );
         }).collect(Collectors.toList()));
         return ResponseEntity.ok(response);
     }
