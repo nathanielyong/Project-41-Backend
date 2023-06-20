@@ -14,6 +14,9 @@ public class GetUserResponse {
     private String userId;
 
     @JsonProperty
+    private String username;
+
+    @JsonProperty
     private String email;
 
     @JsonProperty
