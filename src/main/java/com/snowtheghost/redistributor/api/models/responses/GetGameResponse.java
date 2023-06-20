@@ -27,5 +27,5 @@ public class GetGameResponse {
     private Game.State state;
 
     @JsonProperty
-    private List<String> playerEmails;
+    private List<String> players;
 }

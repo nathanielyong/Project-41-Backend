@@ -7,6 +7,9 @@ import lombok.Getter;
 public class CreateUserRequest {
 
     @JsonProperty
+    private String username;
+
+    @JsonProperty
     private String email;
 
     @JsonProperty

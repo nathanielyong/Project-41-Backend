@@ -67,7 +67,7 @@ public class GameController {
                 game.getCost(),
                 game.getType(),
                 game.getState(),
-                game.getPlayerEmails()
+                game.getPlayerUsernames()
         );
         return ResponseEntity.ok(response);
     }
@@ -86,7 +86,7 @@ public class GameController {
             return ResponseEntity.notFound().build();
         }
 
-        List<GetGameResponse> responseGames = games.stream().map(game -> new GetGameResponse(game.getGameId(), game.getCapacity(), game.getCost(), game.getType(), game.getState(), game.getPlayerEmails())).collect(Collectors.toList());
+        List<GetGameResponse> responseGames = games.stream().map(game -> new GetGameResponse(game.getGameId(), game.getCapacity(), game.getCost(), game.getType(), game.getState(), game.getPlayerUsernames())).collect(Collectors.toList());
 
         return ResponseEntity.ok(new GetGamesResponse(responseGames));
     }

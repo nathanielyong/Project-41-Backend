@@ -53,7 +53,7 @@ public class Game {
         COMPLETED,
     }
 
-    public List<String> getPlayerEmails() {
-        return players.stream().map(gamePlayer -> gamePlayer.getUser().getEmail()).collect(Collectors.toList());
+    public List<String> getPlayerUsernames() {
+        return players.stream().map(gamePlayer -> gamePlayer.getUser().getUsername()).collect(Collectors.toList());
     }
 }

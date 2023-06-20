@@ -37,12 +37,9 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Void> createUser(@RequestBody CreateUserRequest request) {
+    public ResponseEntity<LoginResponse> createUser(@RequestBody CreateUserRequest request) {
         String userId = UUID.randomUUID().toString();
-        String email = request.getEmail();
-        String encryptedPassword;
-        encryptedPassword = userService.encryptPassword(request.getPassword());
-        User user = new User(userId, email, encryptedPassword);
+        User user = new User(userId, request.getUsername(), request.getEmail(), userService.encryptPassword(request.getPassword()));
 
         try {
             userService.createUser(user);
@@ -51,7 +48,7 @@ public class UserController {
         }
 
         String token = authenticationService.generateToken(user.getUserId());
-        return ResponseEntity.created(URI.create(String.format("localhost:8080/users/%s", userId))).header("Authorization", "Bearer " + token).build();
+        return ResponseEntity.created(URI.create(String.format("localhost:8080/users/%s", userId))).body(new LoginResponse(token));
     }
 
     @PostMapping("/login")
@@ -97,7 +94,7 @@ public class UserController {
     private ResponseEntity<GetUserResponse> getUserResponse(String userId, User user) {
         GetUserResponse response = new GetUserResponse(userId, user.getEmail(), user.getGames().stream().map(gamePlayer -> {
             Game game = gamePlayer.getGame();
-            return new GetGameResponse(game.getGameId(), game.getCapacity(), game.getCost(), game.getType(), game.getState(), game.getPlayerEmails());
+            return new GetGameResponse(game.getGameId(), game.getCapacity(), game.getCost(), game.getType(), game.getState(), game.getPlayerUsernames());
         }).collect(Collectors.toList()));
         return ResponseEntity.ok(response);
     }
