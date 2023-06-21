@@ -1,10 +1,10 @@
 package com.snowtheghost.redistributor.api.controllers;
 
-import com.snowtheghost.redistributor.api.models.requests.CreateUserRequest;
-import com.snowtheghost.redistributor.api.models.requests.LoginUserRequest;
-import com.snowtheghost.redistributor.api.models.responses.GetGameResponse;
-import com.snowtheghost.redistributor.api.models.responses.GetUserResponse;
-import com.snowtheghost.redistributor.api.models.responses.LoginResponse;
+import com.snowtheghost.redistributor.api.models.requests.users.CreateUserRequest;
+import com.snowtheghost.redistributor.api.models.requests.users.LoginUserRequest;
+import com.snowtheghost.redistributor.api.models.responses.games.GetGameResponse;
+import com.snowtheghost.redistributor.api.models.responses.users.GetUserResponse;
+import com.snowtheghost.redistributor.api.models.responses.users.LoginResponse;
 import com.snowtheghost.redistributor.database.models.Game;
 import com.snowtheghost.redistributor.database.models.User;
 import com.snowtheghost.redistributor.services.AuthenticationService;
@@ -44,7 +44,7 @@ public class UserController {
         try {
             userService.createUser(user);
         } catch (DataIntegrityViolationException exception) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
         String token = authenticationService.generateToken(user.getUserId());
@@ -61,7 +61,7 @@ public class UserController {
             return ResponseEntity.ok(new LoginResponse(token));
         }
 
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @GetMapping("/{userId}")

@@ -1,9 +1,9 @@
 package com.snowtheghost.redistributor.api.controllers;
 
-import com.snowtheghost.redistributor.api.models.requests.CreateGameRequest;
-import com.snowtheghost.redistributor.api.models.responses.CreateGameResponse;
-import com.snowtheghost.redistributor.api.models.responses.GetGameResponse;
-import com.snowtheghost.redistributor.api.models.responses.GetGamesResponse;
+import com.snowtheghost.redistributor.api.models.requests.games.CreateGameRequest;
+import com.snowtheghost.redistributor.api.models.responses.games.CreateGameResponse;
+import com.snowtheghost.redistributor.api.models.responses.games.GetGameResponse;
+import com.snowtheghost.redistributor.api.models.responses.games.GetGamesResponse;
 import com.snowtheghost.redistributor.database.models.Game;
 import com.snowtheghost.redistributor.database.models.User;
 import com.snowtheghost.redistributor.services.AuthenticationService;
@@ -49,7 +49,7 @@ public class GameController {
         Game game = new Game(gameId, request.getCapacity(), request.getCost(), request.getType());
         gameService.createGame(game);
 
-        return new ResponseEntity<>(new CreateGameResponse(gameId), HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new CreateGameResponse(gameId));
     }
 
     @GetMapping("/{gameId}")
@@ -115,9 +115,9 @@ public class GameController {
         try {
             gamePlayerService.joinGame(game, user);
         } catch (DataIntegrityViolationException exception) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         } catch (IllegalStateException exception) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
         return ResponseEntity.noContent().build();

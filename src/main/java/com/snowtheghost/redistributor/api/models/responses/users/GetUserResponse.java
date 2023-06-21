@@ -1,6 +1,7 @@
-package com.snowtheghost.redistributor.api.models.responses;
+package com.snowtheghost.redistributor.api.models.responses.users;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.snowtheghost.redistributor.api.models.responses.games.GetGameResponse;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
 

@@ -1,4 +1,4 @@
-package com.snowtheghost.redistributor.api.models.responses;
+package com.snowtheghost.redistributor.api.models.responses.games;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

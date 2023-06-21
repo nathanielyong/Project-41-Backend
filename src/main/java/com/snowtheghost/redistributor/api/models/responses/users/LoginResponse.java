@@ -1,4 +1,4 @@
-package com.snowtheghost.redistributor.api.models.responses;
+package com.snowtheghost.redistributor.api.models.responses.users;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

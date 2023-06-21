@@ -1,4 +1,4 @@
-package com.snowtheghost.redistributor.api.models.requests;
+package com.snowtheghost.redistributor.api.models.requests.games;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
