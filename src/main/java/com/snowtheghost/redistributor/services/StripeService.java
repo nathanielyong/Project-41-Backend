@@ -8,8 +8,6 @@ import com.stripe.param.checkout.SessionCreateParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.net.URI;
-
 @Service
 public class StripeService {
 
@@ -18,7 +16,7 @@ public class StripeService {
         Stripe.apiKey = stripeConfiguration.getApiKey();
     }
 
-    public URI createCheckoutSession() throws StripeException {
+    public String createCheckoutSession() throws StripeException {
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setSuccessUrl("http://localhost:3000?success=true")
@@ -29,7 +27,7 @@ public class StripeService {
                         .build())
                 .build();
         Session session = Session.create(params);
-        return URI.create(session.getUrl());
+        return session.getUrl();
     }
 
     private enum Price {
