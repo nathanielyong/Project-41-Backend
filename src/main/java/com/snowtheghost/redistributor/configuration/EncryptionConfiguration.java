@@ -6,11 +6,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Getter
-public class StripeConfiguration {
+public class EncryptionConfiguration {
 
-    @Value("${stripe.apiKey}")
-    private String apiKey;
-
-    @Value("${stripe.checkoutSuccessEndpointSecret}")
-    private String checkoutSuccessEndpointSecret;
+    @Value("${encryption.balance.key}")
+    private int balanceEncryptionKey;
 }

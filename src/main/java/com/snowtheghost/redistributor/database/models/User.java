@@ -7,20 +7,23 @@ import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 public class User {
 
-    public User(String userId, String username, String email, String encryptedPassword) {
+    public User(@NotNull String userId, @NotNull String username, @NotNull String email, @NotNull String encryptedPassword, @NotNull String encryptedBalance) {
         this.username = username;
         this.userId = userId;
         this.email = email;
         this.encryptedPassword = encryptedPassword;
+        this.encryptedBalance = encryptedBalance;
     }
 
     @Id
@@ -43,4 +46,7 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<GameWinner> winners = new ArrayList<>();
+
+    @NotNull(message = "Balance is required")
+    private String encryptedBalance;
 }

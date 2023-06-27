@@ -21,5 +21,8 @@ public class GetUserResponse {
     private String email;
 
     @JsonProperty
+    private float balance;
+
+    @JsonProperty
     private List<GetGameResponse> games;
 }

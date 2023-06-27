@@ -2,24 +2,24 @@ package com.snowtheghost.redistributor.services;
 
 import com.snowtheghost.redistributor.database.models.User;
 import com.snowtheghost.redistributor.database.repositories.UserRepository;
+import com.snowtheghost.redistributor.utils.EncryptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final EncryptionUtils encryptionUtils;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, EncryptionUtils encryptionUtils) {
         this.userRepository = userRepository;
+        this.encryptionUtils = encryptionUtils;
     }
 
-    public void createUser(User user) {
+    public void createUser(String userId, String username, String email, String password) {
+        User user = new User(userId, username, email, encryptionUtils.encryptPassword(password), encryptionUtils.encryptBalance(0));
         userRepository.save(user);
     }
 
@@ -32,30 +32,16 @@ public class UserService {
     }
 
     public boolean isValidCredentials(User user, String email, String password) {
-        return user.getEmail().equals(email) && user.getEncryptedPassword().equals(encryptPassword(password));
+        return user.getEmail().equals(email) && user.getEncryptedPassword().equals(encryptionUtils.encryptPassword(password));
     }
 
-    public String encryptPassword(String password) {
-        MessageDigest messageDigest;
-        try {
-            messageDigest = MessageDigest.getInstance("SHA3-256");
-        } catch (NoSuchAlgorithmException exception) {
-            throw new RuntimeException();
-        }
-
-        final byte[] bytes = messageDigest.digest(password.getBytes(StandardCharsets.UTF_8));
-        return bytesToHex(bytes);
+    public void addFunds(String userId, int amount) {
+        User user = getUser(userId);
+        user.setEncryptedBalance(encryptionUtils.encryptBalance(encryptionUtils.decryptBalance(user.getEncryptedBalance()) + amount));
+        userRepository.save(user);
     }
 
-    private static String bytesToHex(byte[] hash) {
-        StringBuilder hexString = new StringBuilder(2 * hash.length);
-        for (byte b : hash) {
-            String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
-        }
-        return hexString.toString();
+    public float getBalance(User user) {
+        return (float) encryptionUtils.decryptBalance(user.getEncryptedBalance()) / 100;
     }
 }

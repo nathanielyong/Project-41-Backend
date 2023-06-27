@@ -27,9 +27,11 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
         http.addFilterBefore(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
-        http.authorizeHttpRequests((requests) -> requests.requestMatchers("/users/register").permitAll()
-                .requestMatchers(HttpMethod.OPTIONS).permitAll() // Allow preflight requests
+        http.authorizeHttpRequests((requests) -> requests
+                .requestMatchers("/users/register").permitAll()
                 .requestMatchers("/users/login").permitAll()
+                .requestMatchers("/payment/stripe/checkout/handle/*").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS).permitAll() // Allow preflight requests
                 .requestMatchers("/error").permitAll()
                 .requestMatchers("/**").authenticated());
         return http.build();

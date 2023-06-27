@@ -39,15 +39,14 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<LoginResponse> createUser(@RequestBody CreateUserRequest request) {
         String userId = UUID.randomUUID().toString();
-        User user = new User(userId, request.getUsername(), request.getEmail(), userService.encryptPassword(request.getPassword()));
 
         try {
-            userService.createUser(user);
+            userService.createUser(userId, request.getUsername(), request.getEmail(), request.getPassword());
         } catch (DataIntegrityViolationException exception) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
-        String token = authenticationService.generateToken(user.getUserId());
+        String token = authenticationService.generateToken(userId);
         return ResponseEntity.created(URI.create(String.format("localhost:8080/users/%s", userId))).body(new LoginResponse(token));
     }
 
@@ -92,7 +91,7 @@ public class UserController {
     }
 
     private ResponseEntity<GetUserResponse> getUserResponse(String userId, User user) {
-        GetUserResponse response = new GetUserResponse(userId, user.getUsername(), user.getEmail(), user.getGames().stream().map(gamePlayer -> {
+        GetUserResponse response = new GetUserResponse(userId, user.getUsername(), user.getEmail(), userService.getBalance(user), user.getGames().stream().map(gamePlayer -> {
             Game game = gamePlayer.getGame();
             return new GetGameResponse(
                     game.getGameId(),
