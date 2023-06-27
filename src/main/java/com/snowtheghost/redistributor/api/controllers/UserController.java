@@ -8,7 +8,9 @@ import com.snowtheghost.redistributor.api.models.responses.users.LoginResponse;
 import com.snowtheghost.redistributor.database.models.Game;
 import com.snowtheghost.redistributor.database.models.User;
 import com.snowtheghost.redistributor.services.AuthenticationService;
+import com.snowtheghost.redistributor.services.StripeService;
 import com.snowtheghost.redistributor.services.UserService;
+import com.stripe.exception.StripeException;
 import jakarta.annotation.security.PermitAll;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,21 +31,31 @@ public class UserController {
 
     private final UserService userService;
     private final AuthenticationService authenticationService;
+    private final StripeService stripeService;
 
     @Autowired
-    public UserController(UserService userService, AuthenticationService authenticationService) {
+    public UserController(UserService userService, AuthenticationService authenticationService, StripeService stripeService) {
         this.userService = userService;
         this.authenticationService = authenticationService;
+        this.stripeService = stripeService;
     }
 
     @PostMapping("/register")
     public ResponseEntity<LoginResponse> createUser(@RequestBody CreateUserRequest request) {
         String userId = UUID.randomUUID().toString();
-
         try {
             userService.createUser(userId, request.getUsername(), request.getEmail(), request.getPassword());
         } catch (DataIntegrityViolationException exception) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        String connectedAccountId;
+        String connectedAccountLinkUrl;
+        try {
+            connectedAccountId = stripeService.createConnectedAccount(request.getEmail());
+            connectedAccountLinkUrl = stripeService.createConnectedAccountLink(connectedAccountId);
+        } catch (StripeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
         String token = authenticationService.generateToken(userId);

@@ -4,8 +4,12 @@ import com.snowtheghost.redistributor.configuration.StripeConfiguration;
 import com.stripe.Stripe;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
+import com.stripe.model.Account;
+import com.stripe.model.AccountLink;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
+import com.stripe.param.AccountCreateParams;
+import com.stripe.param.AccountLinkCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +23,38 @@ public class StripeService {
     public StripeService(StripeConfiguration stripeConfiguration) {
         Stripe.apiKey = stripeConfiguration.getApiKey();
         this.checkoutSuccessEndpointSecret = stripeConfiguration.getCheckoutSuccessEndpointSecret();
+    }
+
+    public String createConnectedAccount(String email) throws StripeException {
+        AccountCreateParams params = AccountCreateParams.builder()
+                .setCountry("CA")
+                .setType(AccountCreateParams.Type.EXPRESS)
+                .setCapabilities(AccountCreateParams.Capabilities.builder()
+                        .setCardPayments(AccountCreateParams.Capabilities.CardPayments.builder().setRequested(true).build())
+                        .setTransfers(AccountCreateParams.Capabilities.Transfers.builder().setRequested(true).build())
+                        .build())
+                .setBusinessType(AccountCreateParams.BusinessType.INDIVIDUAL)
+                .setEmail(email)
+                .setSettings(AccountCreateParams.Settings.builder()
+                        .setPayouts(AccountCreateParams.Settings.Payouts.builder()
+                                .setSchedule(AccountCreateParams.Settings.Payouts.Schedule.builder()
+                                        .setInterval(AccountCreateParams.Settings.Payouts.Schedule.Interval.MANUAL).build())
+                                .build())
+                        .build())
+                .build();
+        Account account = Account.create(params);
+        return account.getId();
+    }
+
+    public String createConnectedAccountLink(String connectedAccountId) throws StripeException {
+        AccountLinkCreateParams params = AccountLinkCreateParams.builder()
+                .setAccount(connectedAccountId)
+                .setRefreshUrl("https://example.com/reauth")
+                .setReturnUrl("http://localhost:3000")
+                .setType(AccountLinkCreateParams.Type.ACCOUNT_ONBOARDING)
+                .build();
+        AccountLink accountLink = AccountLink.create(params);
+        return accountLink.getUrl();
     }
 
     public void validateCheckoutSuccess(String payload, String signature) throws SignatureVerificationException {
