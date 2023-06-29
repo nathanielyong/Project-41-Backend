@@ -28,6 +28,11 @@ public class UserService {
         return userRepository.findById(userId).orElseThrow(EntityNotFoundException::new);
     }
 
+    public boolean hasSufficientFunds(User user, Integer amount) {
+        int balance = encryptionUtils.decryptBalance(user.getEncryptedBalance());
+        return balance > 0 && balance - amount >= 0;
+    }
+
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
@@ -39,6 +44,11 @@ public class UserService {
     public void addFunds(String userId, int amount) {
         User user = getUser(userId);
         user.setEncryptedBalance(encryptionUtils.encryptBalance(encryptionUtils.decryptBalance(user.getEncryptedBalance()) + amount));
+        userRepository.save(user);
+    }
+
+    public void subtractFunds(User user, int amount) {
+        user.setEncryptedBalance(encryptionUtils.encryptBalance(encryptionUtils.decryptBalance(user.getEncryptedBalance()) - amount));
         userRepository.save(user);
     }
 

@@ -17,12 +17,14 @@ public class GameService {
 
     private final GameRepository gameRepository;
     private final GameWinnerService gameWinnerService;
+    private final UserService userService;
     private final Random random = new Random();
 
     @Autowired
-    public GameService(GameRepository gameRepository, GameWinnerService gameWinnerService) {
+    public GameService(GameRepository gameRepository, GameWinnerService gameWinnerService, UserService userService) {
         this.gameRepository = gameRepository;
         this.gameWinnerService = gameWinnerService;
+        this.userService = userService;
     }
 
     public void createGame(Game game) {
@@ -43,6 +45,14 @@ public class GameService {
         game.setState(Game.State.PENDING_RESULTS);
         Map<String, Integer> results = generateResults(game);
         gameWinnerService.addWinners(game, results);
+
+        for (String winnerId : results.keySet()) {
+            int amount = results.get(winnerId);
+            if (amount > 0) {
+                userService.addFunds(winnerId, amount);
+            }
+        }
+
         game.setState(Game.State.COMPLETED);
         gameRepository.save(game);
     }

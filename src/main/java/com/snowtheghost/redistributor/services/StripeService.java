@@ -6,6 +6,7 @@ import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Account;
 import com.stripe.model.AccountLink;
+import com.stripe.model.Transfer;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
 import com.stripe.param.AccountCreateParams;
@@ -14,15 +15,28 @@ import com.stripe.param.checkout.SessionCreateParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class StripeService {
 
+    private final double SERVICE_FEE = 0.96;
     private final String checkoutSuccessEndpointSecret;
 
     @Autowired
     public StripeService(StripeConfiguration stripeConfiguration) {
         Stripe.apiKey = stripeConfiguration.getApiKey();
         this.checkoutSuccessEndpointSecret = stripeConfiguration.getCheckoutSuccessEndpointSecret();
+    }
+
+    public void withdraw(String connectedAccountId, int amount) throws StripeException {
+        amount = (int) (amount * SERVICE_FEE);
+        Map<String, Object> params = new HashMap<>();
+        params.put("amount", amount);
+        params.put("currency", "cad");
+        params.put("destination", connectedAccountId);
+        Transfer.create(params);
     }
 
     public boolean isChargesEnabled(String connectedAccountId) throws StripeException {
