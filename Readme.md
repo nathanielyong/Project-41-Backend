@@ -8,7 +8,6 @@ Before running this project, ensure that you have the following installed on you
 
 - JDK (Java Development Kit) 17 or later: [Download JDK](https://www.oracle.com/java/technologies/javase-jdk17-downloads.html)
 - Maven 3.8.6 or later: [Download Maven](https://maven.apache.org/download.cgi)
-- Node.js 18.16.0 or later: [Download Node.js](https://nodejs.org/en/download/)
 - MySQL 8.0.33 or later: [Download MySQL](https://dev.mysql.com/downloads/installer/)
 
 ## Backend Setup
