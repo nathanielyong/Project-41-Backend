@@ -25,6 +25,11 @@ public class StripeService {
         this.checkoutSuccessEndpointSecret = stripeConfiguration.getCheckoutSuccessEndpointSecret();
     }
 
+    public boolean isChargesEnabled(String connectedAccountId) throws StripeException {
+        Account account = Account.retrieve(connectedAccountId);
+        return account.getChargesEnabled();
+    }
+
     public String createConnectedAccount(String email) throws StripeException {
         AccountCreateParams params = AccountCreateParams.builder()
                 .setCountry("CA")
@@ -49,8 +54,8 @@ public class StripeService {
     public String createConnectedAccountLink(String connectedAccountId) throws StripeException {
         AccountLinkCreateParams params = AccountLinkCreateParams.builder()
                 .setAccount(connectedAccountId)
-                .setRefreshUrl("https://example.com/reauth")
-                .setReturnUrl("http://localhost:3000")
+                .setRefreshUrl("http://localhost:3000/funds?account=false")
+                .setReturnUrl("http://localhost:3000/funds")
                 .setType(AccountLinkCreateParams.Type.ACCOUNT_ONBOARDING)
                 .build();
         AccountLink accountLink = AccountLink.create(params);
@@ -64,8 +69,8 @@ public class StripeService {
     public String createCheckoutSession(String userId) throws StripeException {
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl("http://localhost:3000/funds?success=true")
-                .setCancelUrl("http://localhost:3000/funds?success=false")
+                .setSuccessUrl("http://localhost:3000/funds?deposit=true")
+                .setCancelUrl("http://localhost:3000/funds?deposit=false")
                 .addLineItem(SessionCreateParams.LineItem.builder()
                         .setQuantity(1L)
                         .setPrice(Price.CAD_10.getValue())

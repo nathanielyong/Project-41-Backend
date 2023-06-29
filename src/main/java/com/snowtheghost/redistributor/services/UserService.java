@@ -3,6 +3,7 @@ package com.snowtheghost.redistributor.services;
 import com.snowtheghost.redistributor.database.models.User;
 import com.snowtheghost.redistributor.database.repositories.UserRepository;
 import com.snowtheghost.redistributor.utils.EncryptionUtils;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +19,13 @@ public class UserService {
         this.encryptionUtils = encryptionUtils;
     }
 
-    public void createUser(String userId, String username, String email, String password) {
-        User user = new User(userId, username, email, encryptionUtils.encryptPassword(password), encryptionUtils.encryptBalance(0));
+    public void createUser(String userId, String username, String email, String password, String connectedAccountId) {
+        User user = new User(userId, username, email, encryptionUtils.encryptPassword(password), encryptionUtils.encryptBalance(0), connectedAccountId);
         userRepository.save(user);
     }
 
-    public User getUser(String userId) {
-        return userRepository.getReferenceById(userId);
+    public User getUser(String userId) throws EntityNotFoundException {
+        return userRepository.findById(userId).orElseThrow(EntityNotFoundException::new);
     }
 
     public User getUserByEmail(String email) {

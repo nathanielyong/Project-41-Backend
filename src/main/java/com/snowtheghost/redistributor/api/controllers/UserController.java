@@ -3,6 +3,7 @@ package com.snowtheghost.redistributor.api.controllers;
 import com.snowtheghost.redistributor.api.models.requests.users.CreateUserRequest;
 import com.snowtheghost.redistributor.api.models.requests.users.LoginUserRequest;
 import com.snowtheghost.redistributor.api.models.responses.games.GetGameResponse;
+import com.snowtheghost.redistributor.api.models.responses.users.CreateUserResponse;
 import com.snowtheghost.redistributor.api.models.responses.users.GetUserResponse;
 import com.snowtheghost.redistributor.api.models.responses.users.LoginResponse;
 import com.snowtheghost.redistributor.database.models.Game;
@@ -41,25 +42,30 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<LoginResponse> createUser(@RequestBody CreateUserRequest request) {
-        String userId = UUID.randomUUID().toString();
-        try {
-            userService.createUser(userId, request.getUsername(), request.getEmail(), request.getPassword());
-        } catch (DataIntegrityViolationException exception) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
-
+    public ResponseEntity<CreateUserResponse> createUser(@RequestBody CreateUserRequest request) {
         String connectedAccountId;
-        String connectedAccountLinkUrl;
         try {
             connectedAccountId = stripeService.createConnectedAccount(request.getEmail());
-            connectedAccountLinkUrl = stripeService.createConnectedAccountLink(connectedAccountId);
         } catch (StripeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
+        String userId = UUID.randomUUID().toString();
+        try {
+            userService.createUser(userId, request.getUsername(), request.getEmail(), request.getPassword(), connectedAccountId);
+        } catch (DataIntegrityViolationException exception) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        String connectedAccountLinkUrl;
+        try {
+            connectedAccountLinkUrl = stripeService.createConnectedAccountLink(connectedAccountId);
+        } catch (StripeException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+        }
+
         String token = authenticationService.generateToken(userId);
-        return ResponseEntity.created(URI.create(String.format("localhost:8080/users/%s", userId))).body(new LoginResponse(token));
+        return ResponseEntity.created(URI.create(String.format("localhost:8080/users/%s", userId))).body(new CreateUserResponse(token, connectedAccountLinkUrl));
     }
 
     @PostMapping("/login")
@@ -84,37 +90,45 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
 
-        return getUserResponse(userId, user);
+        return ResponseEntity.ok(getUserResponse(user));
     }
 
     @GetMapping("/me")
     public ResponseEntity<GetUserResponse> getActiveUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken) {
         String userId;
         User user;
-
+        Boolean chargesEnabled = null;
         try {
             userId = authenticationService.getUserId(bearerToken);
             user = userService.getUser(userId);
-        } catch (EntityNotFoundException e) {
+
+            if (!user.getConnectedAccountId().isEmpty()) {
+                chargesEnabled = stripeService.isChargesEnabled(user.getConnectedAccountId());
+            }
+        } catch (EntityNotFoundException | StripeException e) {
             return ResponseEntity.notFound().build();
         }
 
-        return getUserResponse(userId, user);
+        return ResponseEntity.ok(getUserResponse(user, chargesEnabled));
     }
 
-    private ResponseEntity<GetUserResponse> getUserResponse(String userId, User user) {
-        GetUserResponse response = new GetUserResponse(userId, user.getUsername(), user.getEmail(), userService.getBalance(user), user.getGames().stream().map(gamePlayer -> {
-            Game game = gamePlayer.getGame();
-            return new GetGameResponse(
-                    game.getGameId(),
-                    game.getCapacity(),
-                    game.getCost(),
-                    game.getType(),
-                    game.getState(),
-                    game.getPlayerUsernames(),
-                    game.getWinnerUsernamesToEarnings()
-            );
-        }).collect(Collectors.toList()));
-        return ResponseEntity.ok(response);
+    private GetUserResponse getUserResponse(User user) {
+        return getUserResponse(user, null);
+    }
+
+    private GetUserResponse getUserResponse(User user, Boolean chargesEnabled) {
+        return new GetUserResponse(user.getUserId(), user.getUsername(), user.getEmail(), userService.getBalance(user), user.getConnectedAccountId(), chargesEnabled,
+                user.getGames().stream().map(gamePlayer -> {
+                    Game game = gamePlayer.getGame();
+                    return new GetGameResponse(
+                            game.getGameId(),
+                            game.getCapacity(),
+                            game.getCost(),
+                            game.getType(),
+                            game.getState(),
+                            game.getPlayerUsernames(),
+                            game.getWinnerUsernamesToEarnings()
+                    );
+                }).collect(Collectors.toList()));
     }
 }
