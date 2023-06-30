@@ -21,7 +21,7 @@ public class EncryptionUtils {
         return String.valueOf(encryptedValue);
     }
 
-    public int decryptBalance(String encryptedValue) {
+    public Integer decryptBalance(String encryptedValue) {
         int intValue = Integer.parseInt(encryptedValue);
         return intValue ^ balanceEncryptionKey;
     }

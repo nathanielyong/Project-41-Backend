@@ -18,12 +18,13 @@ import java.util.List;
 @NoArgsConstructor
 public class User {
 
-    public User(@NotNull String userId, @NotNull String username, @NotNull String email, @NotNull String encryptedPassword, @NotNull String encryptedBalance) {
+    public User(@NotNull String userId, @NotNull String username, @NotNull String email, @NotNull String encryptedPassword, @NotNull String encryptedBalance, @NotNull String connectedAccountId) {
         this.username = username;
         this.userId = userId;
         this.email = email;
         this.encryptedPassword = encryptedPassword;
         this.encryptedBalance = encryptedBalance;
+        this.connectedAccountId = connectedAccountId;
     }
 
     @Id
@@ -49,4 +50,7 @@ public class User {
 
     @NotNull(message = "Balance is required")
     private String encryptedBalance;
+
+    @NotNull(message = "Connected account ID is required")
+    private String connectedAccountId;
 }

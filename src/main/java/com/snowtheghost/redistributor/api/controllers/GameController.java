@@ -112,6 +112,12 @@ public class GameController {
             return ResponseEntity.notFound().build();
         }
 
+        if (!userService.hasSufficientFunds(user, game.getCost())) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        userService.subtractFunds(user, game.getCost());
+
         try {
             gamePlayerService.joinGame(game, user);
         } catch (DataIntegrityViolationException exception) {
