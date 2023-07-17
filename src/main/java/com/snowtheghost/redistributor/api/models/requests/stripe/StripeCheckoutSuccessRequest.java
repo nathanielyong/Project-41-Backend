@@ -3,8 +3,10 @@ package com.snowtheghost.redistributor.api.models.requests.stripe;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class StripeCheckoutSuccessRequest {
 
@@ -15,6 +17,7 @@ public class StripeCheckoutSuccessRequest {
     private Data data;
 
     @Getter
+    @Setter
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Data {
 
@@ -22,6 +25,7 @@ public class StripeCheckoutSuccessRequest {
         private Object object;
 
         @Getter
+        @Setter
         @JsonIgnoreProperties(ignoreUnknown = true)
         public static class Object {
 

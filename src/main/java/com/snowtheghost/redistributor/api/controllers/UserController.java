@@ -104,6 +104,8 @@ public class UserController {
 
             if (!user.getConnectedAccountId().isEmpty()) {
                 chargesEnabled = stripeService.isChargesEnabled(user.getConnectedAccountId());
+            } else {
+                chargesEnabled = false;
             }
         } catch (EntityNotFoundException | StripeException e) {
             return ResponseEntity.notFound().build();
