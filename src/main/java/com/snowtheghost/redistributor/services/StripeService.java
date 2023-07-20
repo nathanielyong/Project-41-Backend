@@ -21,7 +21,7 @@ import java.util.Map;
 @Service
 public class StripeService {
 
-    private final double SERVICE_FEE = 0.96;
+    final double SERVICE_FEE = 0.96;
     private final String checkoutSuccessEndpointSecret;
 
     @Autowired
@@ -95,7 +95,7 @@ public class StripeService {
         return session.getUrl();
     }
 
-    private enum Price {
+    enum Price {
 
         CAD_10("price_1NLTw6BudgFCw40UFhsqirjA");
 
@@ -105,7 +105,7 @@ public class StripeService {
             this.value = value;
         }
 
-        private String getValue() {
+        String getValue() {
             return value;
         }
     }

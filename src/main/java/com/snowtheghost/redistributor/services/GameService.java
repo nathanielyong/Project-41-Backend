@@ -57,7 +57,7 @@ public class GameService {
         gameRepository.save(game);
     }
 
-    private Map<String, Integer> generateResults(Game game) {
+    Map<String, Integer> generateResults(Game game) {
         HashMap<String, Integer> results = new HashMap<>();
         if (game.getType() == Game.Type.ROYALE) {
             results.put(game.getPlayerIds().get(random.nextInt(game.getCapacity())), game.getCapacity() * game.getCost());
