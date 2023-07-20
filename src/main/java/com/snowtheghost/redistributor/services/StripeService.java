@@ -13,6 +13,7 @@ import com.stripe.param.AccountCreateParams;
 import com.stripe.param.AccountLinkCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -21,6 +22,8 @@ import java.util.Map;
 @Service
 public class StripeService {
 
+    @Value("${frontend.url}")
+    private String frontendUrl;
     final double SERVICE_FEE = 0.96;
     private final String checkoutSuccessEndpointSecret;
 
@@ -68,8 +71,8 @@ public class StripeService {
     public String createConnectedAccountLink(String connectedAccountId) throws StripeException {
         AccountLinkCreateParams params = AccountLinkCreateParams.builder()
                 .setAccount(connectedAccountId)
-                .setRefreshUrl("http://localhost:3000/funds?account=false")
-                .setReturnUrl("http://localhost:3000/funds")
+                .setRefreshUrl(frontendUrl + "/funds?account=false")
+                .setReturnUrl(frontendUrl + "/funds")
                 .setType(AccountLinkCreateParams.Type.ACCOUNT_ONBOARDING)
                 .build();
         AccountLink accountLink = AccountLink.create(params);
@@ -83,8 +86,8 @@ public class StripeService {
     public String createCheckoutSession(String userId) throws StripeException {
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl("http://localhost:3000/funds?deposit=true")
-                .setCancelUrl("http://localhost:3000/funds?deposit=false")
+                .setSuccessUrl(frontendUrl + "/funds?deposit=true")
+                .setCancelUrl(frontendUrl + "/funds?deposit=false")
                 .addLineItem(SessionCreateParams.LineItem.builder()
                         .setQuantity(1L)
                         .setPrice(Price.CAD_10.getValue())

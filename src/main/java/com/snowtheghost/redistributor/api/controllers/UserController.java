@@ -15,6 +15,7 @@ import com.stripe.exception.StripeException;
 import jakarta.annotation.security.PermitAll;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/users")
 public class UserController {
 
+    @Value("${backend.url}")
+    private String backendUrl;
     private final UserService userService;
     private final AuthenticationService authenticationService;
     private final StripeService stripeService;
@@ -65,7 +68,7 @@ public class UserController {
         }
 
         String token = authenticationService.generateToken(userId);
-        return ResponseEntity.created(URI.create(String.format("localhost:8080/users/%s", userId))).body(new CreateUserResponse(token, connectedAccountLinkUrl));
+        return ResponseEntity.created(URI.create(String.format(backendUrl + "/users/%s", userId))).body(new CreateUserResponse(token, connectedAccountLinkUrl));
     }
 
     @PostMapping("/login")
