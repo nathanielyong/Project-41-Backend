@@ -1,6 +1,6 @@
-# Redistributor Backend
+# Project41 Backend
 
-The private API for the redistributor application
+The private API for the project41 application
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ Before running this project, ensure that you have the following installed on you
 ## Backend Setup
 
 1. Clone this repository to your local machine.
-2. Open a terminal and navigate to the project's backend directory: `cd redistributor-backend`.
+2. Open a terminal and navigate to the project's backend directory: `cd project41-backend`.
 3. Update the MySQL database connection settings in the `application.properties` file.
 4. Build the backend project using Maven: `mvn clean install`.
 5. Run the backend application in your IDE or with the command: `mvn spring-boot:run`.
