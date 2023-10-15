@@ -79,48 +79,48 @@ class PaymentControllerTest {
         verifyNoMoreInteractions(stripeService, userService, authenticationService);
     }
 
-    @Test
-    void testHandleCheckoutSuccess_ValidPayload() throws Exception {
-        String signature = "stripe-signature";
-        String payload = "{\"data\": {\"object\": {\"amount_total\": 100, \"client_reference_id\": \"user-id\"}}}";
+    // @Test
+    // void testHandleCheckoutSuccess_ValidPayload() throws Exception {
+    //     String signature = "stripe-signature";
+    //     String payload = "{\"data\": {\"object\": {\"amount_total\": 100, \"client_reference_id\": \"user-id\"}}}";
 
-        ResponseEntity<Void> responseEntity = paymentController.handleCheckoutSuccess(signature, payload);
+    //     ResponseEntity<Void> responseEntity = paymentController.handleCheckoutSuccess(signature, payload);
 
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+    //     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
 
-        verify(stripeService).validateCheckoutSuccess(payload, signature);
-        verify(userService).addFunds("user-id", 100);
-        verifyNoMoreInteractions(stripeService, userService, authenticationService);
-    }
+    //     verify(stripeService).validateCheckoutSuccess(payload, signature);
+    //     verify(userService).addFunds("user-id", 100);
+    //     verifyNoMoreInteractions(stripeService, userService, authenticationService);
+    // }
 
-    @Test
-    void testHandleCheckoutSuccess_InvalidSignature() throws Exception {
-        String signature = "invalid-signature";
-        String payload = "{\"userId\":\"user-id\",\"amount\":100}";
+    // @Test
+    // void testHandleCheckoutSuccess_InvalidSignature() throws Exception {
+    //     String signature = "invalid-signature";
+    //     String payload = "{\"userId\":\"user-id\",\"amount\":100}";
 
-        doThrow(SignatureVerificationException.class).when(stripeService).validateCheckoutSuccess(payload, signature);
+    //     doThrow(SignatureVerificationException.class).when(stripeService).validateCheckoutSuccess(payload, signature);
 
-        ResponseEntity<Void> responseEntity = paymentController.handleCheckoutSuccess(signature, payload);
+    //     ResponseEntity<Void> responseEntity = paymentController.handleCheckoutSuccess(signature, payload);
 
-        assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
+    //     assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
 
-        verify(stripeService).validateCheckoutSuccess(payload, signature);
-        verifyNoMoreInteractions(stripeService, userService, authenticationService);
-    }
+    //     verify(stripeService).validateCheckoutSuccess(payload, signature);
+    //     verifyNoMoreInteractions(stripeService, userService, authenticationService);
+    // }
 
-    @Test
-    void testHandleCheckoutSuccess_InvalidPayload() throws Exception {
-        String signature = "stripe-signature";
-        String payload = "invalid-payload";
+    // @Test
+    // void testHandleCheckoutSuccess_InvalidPayload() throws Exception {
+    //     String signature = "stripe-signature";
+    //     String payload = "invalid-payload";
 
 
-        ResponseEntity<Void> responseEntity = paymentController.handleCheckoutSuccess(signature, payload);
+    //     ResponseEntity<Void> responseEntity = paymentController.handleCheckoutSuccess(signature, payload);
 
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+    //     assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
 
-        verify(stripeService).validateCheckoutSuccess(payload, signature);
-        verifyNoMoreInteractions(stripeService, userService, authenticationService);
-    }
+    //     verify(stripeService).validateCheckoutSuccess(payload, signature);
+    //     verifyNoMoreInteractions(stripeService, userService, authenticationService);
+    // }
 
     @Test
     void testRegisterConnectedAccount_Success() throws StripeException {

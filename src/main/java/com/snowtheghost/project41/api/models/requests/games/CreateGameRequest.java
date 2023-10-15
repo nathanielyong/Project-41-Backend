@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class  CreateGameRequest {
+public class CreateGameRequest {
 
     @JsonProperty
     private int capacity;

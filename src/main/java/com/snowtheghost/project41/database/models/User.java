@@ -42,6 +42,8 @@ public class User {
     @NotNull(message = "Encrypted password is required.")
     private String encryptedPassword;
 
+    private String currentGameId;
+
     @OneToMany(mappedBy = "user")
     private List<GamePlayer> games = new ArrayList<>();
 
