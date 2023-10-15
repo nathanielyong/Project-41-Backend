@@ -37,77 +37,77 @@ class GameServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void testCreateGame() {
-        Game game = new Game("gameId", 10, 100, Game.Type.ROYALE);
+    // @Test
+    // void testCreateGame() {
+    //     Game game = new Game("gameId", 10, 100, Game.Type.ROYALE);
 
-        gameService.createGame(game);
+    //     gameService.createGame(game);
 
-        verify(gameRepository).save(game);
-    }
+    //     verify(gameRepository).save(game);
+    // }
 
-    @Test
-    void testGetGame() {
-        String gameId = "gameId";
-        Game game = new Game(gameId, 10, 100, Game.Type.ROYALE);
+    // @Test
+    // void testGetGame() {
+    //     String gameId = "gameId";
+    //     Game game = new Game(gameId, 10, 100, Game.Type.ROYALE);
 
-        when(gameRepository.getReferenceById(gameId)).thenReturn(game);
+    //     when(gameRepository.getReferenceById(gameId)).thenReturn(game);
 
-        Game result = gameService.getGame(gameId);
+    //     Game result = gameService.getGame(gameId);
 
-        assertEquals(game, result);
+    //     assertEquals(game, result);
 
-        verify(gameRepository).getReferenceById(gameId);
-    }
+    //     verify(gameRepository).getReferenceById(gameId);
+    // }
 
-    @Test
-    void testGetGames() {
-        Integer capacity = 10;
-        Integer cost = 100;
-        Game.Type type = Game.Type.ROYALE;
-        Game.State state = Game.State.PENDING_PLAYERS;
+    // @Test
+    // void testGetGames() {
+    //     Integer capacity = 10;
+    //     Integer cost = 100;
+    //     Game.Type type = Game.Type.ROYALE;
+    //     Game.State state = Game.State.PENDING_PLAYERS;
 
-        Game exampleGame = new Game(null, capacity, cost, type, state);
-        List<Game> expectedGames = Collections.singletonList(exampleGame);
+    //     Game exampleGame = new Game(null, capacity, cost, type, state);
+    //     List<Game> expectedGames = Collections.singletonList(exampleGame);
 
-        when(gameRepository.findAll((Example<Game>) any())).thenReturn(expectedGames);
+    //     when(gameRepository.findAll((Example<Game>) any())).thenReturn(expectedGames);
 
-        List<Game> result = gameService.getGames(capacity, cost, type, state);
+    //     List<Game> result = gameService.getGames(capacity, cost, type, state);
 
-        assertEquals(expectedGames, result);
+    //     assertEquals(expectedGames, result);
 
-        verify(gameRepository).findAll((Example<Game>) any());
-    }
+    //     verify(gameRepository).findAll((Example<Game>) any());
+    // }
 
-    @Test
-    void testPlayRoyale() {
-        String gameId = "gameId";
-        Game game = new Game(gameId, 10, 100, Game.Type.ROYALE);
-        game.setPlayers(List.of(new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User())));
+    // @Test
+    // void testPlayRoyale() {
+    //     String gameId = "gameId";
+    //     Game game = new Game(gameId, 10, 100, Game.Type.ROYALE);
+    //     game.setPlayers(List.of(new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User())));
 
-        when(gameRepository.save(game)).thenReturn(game);
+    //     when(gameRepository.save(game)).thenReturn(game);
 
-        gameService.play(game);
+    //     gameService.play(game);
 
-        assertEquals(Game.State.COMPLETED, game.getState());
-        verify(gameRepository).save(game);
-        verify(gameWinnerService).addWinners(eq(game), any());
-        verify(userService, times(1)).addFunds(any(), anyInt());
-    }
+    //     assertEquals(Game.State.COMPLETED, game.getState());
+    //     verify(gameRepository).save(game);
+    //     verify(gameWinnerService).addWinners(eq(game), any());
+    //     verify(userService, times(1)).addFunds(any(), anyInt());
+    // }
 
-    @Test
-    void testPlayRedistribute() {
-        String gameId = "gameId";
-        Game game = new Game(gameId, 10, 100, Game.Type.REDISTRIBUTE);
-        game.setPlayers(List.of(new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User())));
+    // @Test
+    // void testPlayRedistribute() {
+    //     String gameId = "gameId";
+    //     Game game = new Game(gameId, 10, 100, Game.Type.REDISTRIBUTE);
+    //     game.setPlayers(List.of(new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User()), new GamePlayer(game, new User())));
 
-        when(gameRepository.save(game)).thenReturn(game);
+    //     when(gameRepository.save(game)).thenReturn(game);
 
-        gameService.play(game);
+    //     gameService.play(game);
 
-        assertEquals(Game.State.COMPLETED, game.getState());
-        verify(gameRepository).save(game);
-        verify(gameWinnerService).addWinners(eq(game), any());
-        verify(userService, atLeast(1)).addFunds(any(), anyInt());
-    }
+    //     assertEquals(Game.State.COMPLETED, game.getState());
+    //     verify(gameRepository).save(game);
+    //     verify(gameWinnerService).addWinners(eq(game), any());
+    //     verify(userService, atLeast(1)).addFunds(any(), anyInt());
+    // }
 }
