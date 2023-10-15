@@ -81,8 +81,8 @@ public class GameController {
 
         String gameId = UUID.randomUUID().toString();
         GameResponse response;
-        //System.out.println("python " + pythonPath + " -game_id " + gameId + " -game_type " + gameName + " -player1_type " + player1_type + " -player2_type " + player2_type);
-        ProcessBuilder pb = new ProcessBuilder("python3", pythonPath, "-game_id", gameId, "-game_type", gameName, "-player1_type", player1_type, "-player2_type", player2_type);
+        System.out.println("python " + pythonPath + " -game_id " + gameId + " -game_type " + gameName + " -player1_type " + player1_type + " -player2_type " + player2_type);
+        ProcessBuilder pb = new ProcessBuilder("python", pythonPath, "-game_id", gameId, "-game_type", gameName, "-player1_type", player1_type, "-player2_type", player2_type);
         try {
             pb.redirectErrorStream(true);
             Process process = pb.start();
@@ -94,7 +94,7 @@ public class GameController {
                 output.append(line).append("\n");
             }
             
-            String jsonString = output.toString();
+            String jsonString = output.toString().strip();
             int exitCode = process.waitFor();
             if (exitCode == 0) {
                 System.out.println("Python game started successfully");
@@ -107,6 +107,7 @@ public class GameController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
         } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         user.setCurrentGameId(gameId);
