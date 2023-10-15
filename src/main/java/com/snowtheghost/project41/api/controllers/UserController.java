@@ -46,12 +46,16 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<CreateUserResponse> createUser(@RequestBody CreateUserRequest request) {
-        String connectedAccountId;
-        try {
-            connectedAccountId = stripeService.createConnectedAccount(request.getEmail());
-        } catch (StripeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+//      TODO: Uncomment to use Stripe
+//        String connectedAccountId;
+//        try {
+//            connectedAccountId = stripeService.createConnectedAccount(request.getEmail());
+//        } catch (StripeException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+//        }
+
+//      TODO: Remove placeholder to use Stripe
+        String connectedAccountId = "Placeholder";
 
         String userId = UUID.randomUUID().toString();
         try {
@@ -60,12 +64,16 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
-        String connectedAccountLinkUrl;
-        try {
-            connectedAccountLinkUrl = stripeService.createConnectedAccountLink(connectedAccountId);
-        } catch (StripeException e) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
-        }
+//      TODO: Uncomment to use Stripe
+//        String connectedAccountLinkUrl;
+//        try {
+//            connectedAccountLinkUrl = stripeService.createConnectedAccountLink(connectedAccountId);
+//        } catch (StripeException e) {
+//            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+//        }
+
+//      TODO: Remove placeholder to use Stripe
+        String connectedAccountLinkUrl = "Placeholder";
 
         String token = authenticationService.generateToken(userId);
         return ResponseEntity.created(URI.create(String.format(backendUrl + "/users/%s", userId))).body(new CreateUserResponse(token, connectedAccountLinkUrl));
@@ -100,17 +108,20 @@ public class UserController {
     public ResponseEntity<GetUserResponse> getActiveUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken) {
         String userId;
         User user;
-        Boolean chargesEnabled = null;
+        Boolean chargesEnabled = false;
         try {
             userId = authenticationService.getUserId(bearerToken);
             user = userService.getUser(userId);
 
-            if (!user.getConnectedAccountId().isEmpty()) {
-                chargesEnabled = stripeService.isChargesEnabled(user.getConnectedAccountId());
-            } else {
-                chargesEnabled = false;
-            }
-        } catch (EntityNotFoundException | StripeException e) {
+//      TODO: Uncomment to use Stripe
+//            if (!user.getConnectedAccountId().isEmpty()) {
+//                chargesEnabled = stripeService.isChargesEnabled(user.getConnectedAccountId());
+//            }
+//        } catch (EntityNotFoundException | StripeException e) {
+//            return ResponseEntity.notFound().build();
+//        }
+
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
 

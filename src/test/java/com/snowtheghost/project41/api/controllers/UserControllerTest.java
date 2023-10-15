@@ -53,85 +53,95 @@ class UserControllerTest {
         createUserRequest.setEmail("email@example.com");
         createUserRequest.setPassword("password");
 
-        String connectedAccountId = "connected-account-id";
-        String connectedAccountLinkUrl = "connected-account-link-url";
+//      TODO: Uncomment to use Stripe
+//        String connectedAccountId = "connected-account-id";
+//        String connectedAccountLinkUrl = "connected-account-link-url";
         String token = "token";
 
-        when(stripeService.createConnectedAccount(createUserRequest.getEmail())).thenReturn(connectedAccountId);
-        when(stripeService.createConnectedAccountLink(connectedAccountId)).thenReturn(connectedAccountLinkUrl);
+//      TODO: Uncomment to use Stripe
+//        when(stripeService.createConnectedAccount(createUserRequest.getEmail())).thenReturn(connectedAccountId);
+//        when(stripeService.createConnectedAccountLink(connectedAccountId)).thenReturn(connectedAccountLinkUrl);
         when(authenticationService.generateToken(anyString())).thenReturn(token);
 
         ResponseEntity<CreateUserResponse> responseEntity = userController.createUser(createUserRequest);
 
         assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
 
-        verify(stripeService).createConnectedAccount(createUserRequest.getEmail());
-        verify(userService).createUser(anyString(), eq(createUserRequest.getUsername()), eq(createUserRequest.getEmail()), eq(createUserRequest.getPassword()), eq(connectedAccountId));
-        verify(stripeService).createConnectedAccountLink(connectedAccountId);
+//      TODO: Uncomment to use Stripe
+//        verify(stripeService).createConnectedAccount(createUserRequest.getEmail());
+//        verify(userService).createUser(anyString(), eq(createUserRequest.getUsername()), eq(createUserRequest.getEmail()), eq(createUserRequest.getPassword()), eq(connectedAccountId));
+
+        verify(userService).createUser(anyString(), eq(createUserRequest.getUsername()), eq(createUserRequest.getEmail()), eq(createUserRequest.getPassword()), eq("Placeholder"));
+
+//      TODO: Uncomment to use Stripe
+//        verify(stripeService).createConnectedAccountLink(connectedAccountId);
         verify(authenticationService).generateToken(anyString());
         verifyNoMoreInteractions(userService, authenticationService, stripeService);
     }
 
-    @Test
-    void testCreateUser_StripeException() throws StripeException {
-        CreateUserRequest createUserRequest = new CreateUserRequest();
-        createUserRequest.setUsername("username");
-        createUserRequest.setEmail("email@example.com");
-        createUserRequest.setPassword("password");
+//  TODO: Uncomment to use Stripe
+//    @Test
+//    void testCreateUser_StripeException() throws StripeException {
+//        CreateUserRequest createUserRequest = new CreateUserRequest();
+//        createUserRequest.setUsername("username");
+//        createUserRequest.setEmail("email@example.com");
+//        createUserRequest.setPassword("password");
+//
+//        when(stripeService.createConnectedAccount(createUserRequest.getEmail())).thenThrow(new ApiException("", "", "", 1, new Exception()));
+//
+//        ResponseEntity<CreateUserResponse> responseEntity = userController.createUser(createUserRequest);
+//
+//        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+//
+//        verify(stripeService).createConnectedAccount(createUserRequest.getEmail());
+//        verifyNoMoreInteractions(userService, authenticationService, stripeService);
+//    }
 
-        when(stripeService.createConnectedAccount(createUserRequest.getEmail())).thenThrow(new ApiException("", "", "", 1, new Exception()));
+//  TODO: Uncomment to use Stripe
+//    @Test
+//    void testCreateUser_StripeConflict() throws StripeException {
+//        CreateUserRequest createUserRequest = new CreateUserRequest();
+//        createUserRequest.setUsername("username");
+//        createUserRequest.setEmail("email@example.com");
+//        createUserRequest.setPassword("password");
+//
+//        String connectedAccountId = "connected-account-id";
+//
+//        when(stripeService.createConnectedAccount(createUserRequest.getEmail())).thenReturn(connectedAccountId);
+//        doThrow(new DataIntegrityViolationException("")).when(userService).createUser(anyString(), eq(createUserRequest.getUsername()), eq(createUserRequest.getEmail()), eq(createUserRequest.getPassword()), eq(connectedAccountId));
+//
+//        ResponseEntity<CreateUserResponse> responseEntity = userController.createUser(createUserRequest);
+//
+//        assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
+//
+//        verify(stripeService).createConnectedAccount(createUserRequest.getEmail());
+//        verify(userService).createUser(anyString(), eq(createUserRequest.getUsername()), eq(createUserRequest.getEmail()), eq(createUserRequest.getPassword()), eq(connectedAccountId));
+//        verifyNoMoreInteractions(userService, authenticationService, stripeService);
+//    }
 
-        ResponseEntity<CreateUserResponse> responseEntity = userController.createUser(createUserRequest);
-
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-
-        verify(stripeService).createConnectedAccount(createUserRequest.getEmail());
-        verifyNoMoreInteractions(userService, authenticationService, stripeService);
-    }
-
-    @Test
-    void testCreateUser_Conflict() throws StripeException {
-        CreateUserRequest createUserRequest = new CreateUserRequest();
-        createUserRequest.setUsername("username");
-        createUserRequest.setEmail("email@example.com");
-        createUserRequest.setPassword("password");
-
-        String connectedAccountId = "connected-account-id";
-
-        when(stripeService.createConnectedAccount(createUserRequest.getEmail())).thenReturn(connectedAccountId);
-        doThrow(new DataIntegrityViolationException("")).when(userService).createUser(anyString(), eq(createUserRequest.getUsername()), eq(createUserRequest.getEmail()), eq(createUserRequest.getPassword()), eq(connectedAccountId));
-
-        ResponseEntity<CreateUserResponse> responseEntity = userController.createUser(createUserRequest);
-
-        assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
-
-        verify(stripeService).createConnectedAccount(createUserRequest.getEmail());
-        verify(userService).createUser(anyString(), eq(createUserRequest.getUsername()), eq(createUserRequest.getEmail()), eq(createUserRequest.getPassword()), eq(connectedAccountId));
-        verifyNoMoreInteractions(userService, authenticationService, stripeService);
-    }
-
-    @Test
-    void testCreateUser_ServiceUnavailable() throws StripeException {
-        CreateUserRequest createUserRequest = new CreateUserRequest();
-        createUserRequest.setUsername("username");
-        createUserRequest.setEmail("email@example.com");
-        createUserRequest.setPassword("password");
-
-        String connectedAccountId = "connected-account-id";
-        String userId = "user-id";
-
-        when(stripeService.createConnectedAccount(createUserRequest.getEmail())).thenReturn(connectedAccountId);
-        when(stripeService.createConnectedAccountLink(connectedAccountId)).thenThrow(new ApiException("", "", "", 1, new Exception()));
-
-        ResponseEntity<CreateUserResponse> responseEntity = userController.createUser(createUserRequest);
-
-        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, responseEntity.getStatusCode());
-
-        verify(stripeService).createConnectedAccount(createUserRequest.getEmail());
-        verify(userService).createUser(anyString(), eq(createUserRequest.getUsername()), eq(createUserRequest.getEmail()), eq(createUserRequest.getPassword()), eq(connectedAccountId));
-        verify(stripeService).createConnectedAccountLink(connectedAccountId);
-        verifyNoMoreInteractions(userService, authenticationService, stripeService);
-    }
+//  TODO: Uncomment to use Stripe
+//    @Test
+//    void testCreateUser_ServiceUnavailable() throws StripeException {
+//        CreateUserRequest createUserRequest = new CreateUserRequest();
+//        createUserRequest.setUsername("username");
+//        createUserRequest.setEmail("email@example.com");
+//        createUserRequest.setPassword("password");
+//
+//        String connectedAccountId = "connected-account-id";
+//        String userId = "user-id";
+//
+//        when(stripeService.createConnectedAccount(createUserRequest.getEmail())).thenReturn(connectedAccountId);
+//        when(stripeService.createConnectedAccountLink(connectedAccountId)).thenThrow(new ApiException("", "", "", 1, new Exception()));
+//
+//        ResponseEntity<CreateUserResponse> responseEntity = userController.createUser(createUserRequest);
+//
+//        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, responseEntity.getStatusCode());
+//
+//        verify(stripeService).createConnectedAccount(createUserRequest.getEmail());
+//        verify(userService).createUser(anyString(), eq(createUserRequest.getUsername()), eq(createUserRequest.getEmail()), eq(createUserRequest.getPassword()), eq(connectedAccountId));
+//        verify(stripeService).createConnectedAccountLink(connectedAccountId);
+//        verifyNoMoreInteractions(userService, authenticationService, stripeService);
+//    }
 
     @Test
     void testLoginUser_Success() {
@@ -238,7 +248,9 @@ class UserControllerTest {
 
         when(authenticationService.getUserId(bearerToken)).thenReturn(userId);
         when(userService.getUser(userId)).thenReturn(user);
-        when(stripeService.isChargesEnabled(connectedAccountId)).thenReturn(true);
+
+//      TODO: Uncomment to use Stripe
+//        when(stripeService.isChargesEnabled(connectedAccountId)).thenReturn(true);
 
         ResponseEntity<GetUserResponse> responseEntity = userController.getActiveUser(bearerToken);
 
@@ -247,7 +259,10 @@ class UserControllerTest {
 
         verify(authenticationService).getUserId(bearerToken);
         verify(userService).getUser(userId);
-        verify(stripeService).isChargesEnabled(connectedAccountId);
+
+//      TODO: Uncomment to use Stripe
+//        verify(stripeService).isChargesEnabled(connectedAccountId);
+
         verify(userService).getBalance(user);
         verifyNoMoreInteractions(userService, authenticationService, stripeService);
     }
@@ -269,27 +284,28 @@ class UserControllerTest {
         verifyNoMoreInteractions(userService, authenticationService, stripeService);
     }
 
-    @Test
-    void testGetActiveUser_StripeException() throws StripeException {
-        String bearerToken = "Bearer token";
-        String userId = "user-id";
-        String connectedAccountId = "connected-account-id";
-
-        User user = new User();
-        user.setUserId(userId);
-        user.setConnectedAccountId(connectedAccountId);
-
-        when(authenticationService.getUserId(bearerToken)).thenReturn(userId);
-        when(userService.getUser(userId)).thenReturn(user);
-        when(stripeService.isChargesEnabled(connectedAccountId)).thenThrow(new ApiException("", "", "", 1, new Exception()));
-
-        ResponseEntity<GetUserResponse> responseEntity = userController.getActiveUser(bearerToken);
-
-        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
-
-        verify(authenticationService).getUserId(bearerToken);
-        verify(userService).getUser(userId);
-        verify(stripeService).isChargesEnabled(connectedAccountId);
-        verifyNoMoreInteractions(userService, authenticationService, stripeService);
-    }
+//  TODO: Uncomment to use Stripe
+//    @Test
+//    void testGetActiveUser_StripeException() throws StripeException {
+//        String bearerToken = "Bearer token";
+//        String userId = "user-id";
+//        String connectedAccountId = "connected-account-id";
+//
+//        User user = new User();
+//        user.setUserId(userId);
+//        user.setConnectedAccountId(connectedAccountId);
+//
+//        when(authenticationService.getUserId(bearerToken)).thenReturn(userId);
+//        when(userService.getUser(userId)).thenReturn(user);
+//        when(stripeService.isChargesEnabled(connectedAccountId)).thenThrow(new ApiException("", "", "", 1, new Exception()));
+//
+//        ResponseEntity<GetUserResponse> responseEntity = userController.getActiveUser(bearerToken);
+//
+//        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+//
+//        verify(authenticationService).getUserId(bearerToken);
+//        verify(userService).getUser(userId);
+//        verify(stripeService).isChargesEnabled(connectedAccountId);
+//        verifyNoMoreInteractions(userService, authenticationService, stripeService);
+//    }
 }
