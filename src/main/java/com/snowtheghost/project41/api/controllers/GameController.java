@@ -82,7 +82,7 @@ public class GameController {
         String gameId = UUID.randomUUID().toString();
         GameResponse response;
         //System.out.println("python " + pythonPath + " -game_id " + gameId + " -game_type " + gameName + " -player1_type " + player1_type + " -player2_type " + player2_type);
-        ProcessBuilder pb = new ProcessBuilder("python", pythonPath, "-game_id", gameId, "-game_type", gameName, "-player1_type", player1_type, "-player2_type", player2_type);
+        ProcessBuilder pb = new ProcessBuilder("python3", pythonPath, "-game_id", gameId, "-game_type", gameName, "-player1_type", player1_type, "-player2_type", player2_type);
         try {
             pb.redirectErrorStream(true);
             Process process = pb.start();
