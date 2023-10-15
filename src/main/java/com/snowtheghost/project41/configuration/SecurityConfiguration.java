@@ -28,6 +28,7 @@ public class SecurityConfiguration {
         http.csrf(AbstractHttpConfigurer::disable);
         http.addFilterBefore(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
         http.authorizeHttpRequests((requests) -> requests
+                .requestMatchers("/hello").permitAll()
                 .requestMatchers("/users/register").permitAll()
                 .requestMatchers("/users/login").permitAll()
                 .requestMatchers("/payment/stripe/checkout/handle/*").permitAll()
