@@ -57,12 +57,12 @@ public class StripeService {
                         .build())
                 .setBusinessType(AccountCreateParams.BusinessType.INDIVIDUAL)
                 .setEmail(email)
-               .setSettings(AccountCreateParams.Settings.builder()
-                       .setPayouts(AccountCreateParams.Settings.Payouts.builder()
-                               .setSchedule(AccountCreateParams.Settings.Payouts.Schedule.builder()
-                                       .setInterval(AccountCreateParams.Settings.Payouts.Schedule.Interval.MANUAL).build())
-                               .build())
-                       .build())
+//                .setSettings(AccountCreateParams.Settings.builder()
+//                        .setPayouts(AccountCreateParams.Settings.Payouts.builder()
+//                                .setSchedule(AccountCreateParams.Settings.Payouts.Schedule.builder()
+//                                        .setInterval(AccountCreateParams.Settings.Payouts.Schedule.Interval.MANUAL).build())
+//                                .build())
+//                        .build())
                 .build();
         Account account = Account.create(params);
         return account.getId();

@@ -46,12 +46,12 @@ class UserControllerTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    // @Test
-    // void testCreateUser_Success() throws StripeException {
-    //     CreateUserRequest createUserRequest = new CreateUserRequest();
-    //     createUserRequest.setUsername("username");
-    //     createUserRequest.setEmail("email@example.com");
-    //     createUserRequest.setPassword("password");
+    @Test
+    void testCreateUser_Success() throws StripeException {
+        CreateUserRequest createUserRequest = new CreateUserRequest();
+        createUserRequest.setUsername("username");
+        createUserRequest.setEmail("email@example.com");
+        createUserRequest.setPassword("password");
 
 //      TODO: Uncomment to use Stripe
 //        String connectedAccountId = "connected-account-id";
@@ -63,9 +63,9 @@ class UserControllerTest {
 //        when(stripeService.createConnectedAccountLink(connectedAccountId)).thenReturn(connectedAccountLinkUrl);
         when(authenticationService.generateToken(anyString())).thenReturn(token);
 
-    //     ResponseEntity<CreateUserResponse> responseEntity = userController.createUser(createUserRequest);
+        ResponseEntity<CreateUserResponse> responseEntity = userController.createUser(createUserRequest);
 
-    //     assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
+        assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
 
 //      TODO: Uncomment to use Stripe
 //        verify(stripeService).createConnectedAccount(createUserRequest.getEmail());
