@@ -145,6 +145,6 @@ public class UserController {
                             game.getPlayerUsernames(),
                             game.getWinnerUsernamesToEarnings()
                     );
-                }).collect(Collectors.toList()));
+                }).collect(Collectors.toList()), user.getCurrentGameId());
     }
 }

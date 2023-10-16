@@ -18,13 +18,14 @@ import java.util.List;
 @NoArgsConstructor
 public class User {
 
-    public User(@NotNull String userId, @NotNull String username, @NotNull String email, @NotNull String encryptedPassword, @NotNull String encryptedBalance, @NotNull String connectedAccountId) {
+    public User(@NotNull String userId, @NotNull String username, @NotNull String email, @NotNull String encryptedPassword, @NotNull String encryptedBalance, @NotNull String connectedAccountId, @NotNull String currentGameId) {
         this.username = username;
         this.userId = userId;
         this.email = email;
         this.encryptedPassword = encryptedPassword;
         this.encryptedBalance = encryptedBalance;
         this.connectedAccountId = connectedAccountId;
+        this.currentGameId = currentGameId;
     }
 
     @Id
@@ -42,6 +43,7 @@ public class User {
     @NotNull(message = "Encrypted password is required.")
     private String encryptedPassword;
 
+    @NotNull
     private String currentGameId;
 
     @OneToMany(mappedBy = "user")

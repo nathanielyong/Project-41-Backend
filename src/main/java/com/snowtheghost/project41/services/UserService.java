@@ -20,7 +20,7 @@ public class UserService {
     }
 
     public void createUser(String userId, String username, String email, String password, String connectedAccountId) {
-        User user = new User(userId, username, email, encryptionUtils.encryptPassword(password), encryptionUtils.encryptBalance(0), connectedAccountId);
+        User user = new User(userId, username, email, encryptionUtils.encryptPassword(password), encryptionUtils.encryptBalance(0), connectedAccountId, "");
         userRepository.save(user);
     }
 
@@ -49,6 +49,11 @@ public class UserService {
 
     public void subtractFunds(User user, int amount) {
         user.setEncryptedBalance(encryptionUtils.encryptBalance(encryptionUtils.decryptBalance(user.getEncryptedBalance()) - amount));
+        userRepository.save(user);
+    }
+
+    public void updateId(User user, String gameId) {
+        user.setCurrentGameId(gameId);
         userRepository.save(user);
     }
 
