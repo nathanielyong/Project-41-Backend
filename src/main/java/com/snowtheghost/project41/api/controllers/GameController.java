@@ -37,8 +37,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RequestMapping("/games")
 public class GameController {
 
-    @Value("${python.gameservice.path}")
-    private String pythonPath;
     private final GameService gameService;
     private final GamePlayerService gamePlayerService;
     private final UserService userService;
@@ -64,9 +62,9 @@ public class GameController {
     //     return ResponseEntity.status(HttpStatus.CREATED).body(new CreateGameResponse(gameId));
     // }
 
-    @PostMapping("/start/{gameName}")
+    @PostMapping("/start")
     public ResponseEntity<GameResponse> startGame(
-        @PathVariable String gameName, 
+        @RequestParam String gameType, 
         @RequestParam String player1_type,
         @RequestParam String player2_type,
         @RequestHeader(HttpHeaders.AUTHORIZATION) String token
@@ -79,41 +77,49 @@ public class GameController {
             return ResponseEntity.notFound().build();
         }
 
-        String gameId = UUID.randomUUID().toString();
-        GameResponse response;
-        System.out.println("python " + pythonPath + " -game_id " + gameId + " -game_type " + gameName + " -player1_type " + player1_type + " -player2_type " + player2_type);
-        ProcessBuilder pb = new ProcessBuilder("python", pythonPath, "-game_id", gameId, "-game_type", gameName, "-player1_type", player1_type, "-player2_type", player2_type);
-        try {
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
-            System.out.println("Running Python game");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder output = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
-            }
-            
-            String jsonString = output.toString().strip();
-            int exitCode = process.waitFor();
-            if (exitCode == 0) {
-                System.out.println("Python game started successfully");
-                System.out.println("JSON: " + jsonString);
-                ObjectMapper objectMapper = new ObjectMapper();
-                response = objectMapper.readValue(jsonString, GameResponse.class);
-            } else {
-                System.out.println("Error running Python game");
-                System.out.println("JSON: " + jsonString);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-            }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+        GameResponse response = gameService.startGame(user, gameType, player1_type, player2_type);
+        if (response == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-        user.setCurrentGameId(gameId);
+        return ResponseEntity.ok(response);
+    }
+    
+    @PostMapping("/move")
+    public ResponseEntity<GameResponse> makeMove( 
+        @RequestParam String move,
+        @RequestHeader(HttpHeaders.AUTHORIZATION) String token
+    ) {
+        User user;
+        try {
+            String userId = authenticationService.getUserId(token);
+            user = userService.getUser(userId);
+        } catch (EntityNotFoundException exception) {
+            return ResponseEntity.notFound().build();
+        }
+
+        GameResponse response = gameService.makeMove(user, user.getCurrentGameId(), move);
+        if (response == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/quit")
+    public ResponseEntity<GameResponse> makeMove(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+        User user;
+        try {
+            String userId = authenticationService.getUserId(token);
+            user = userService.getUser(userId);
+        } catch (EntityNotFoundException exception) {
+            return ResponseEntity.notFound().build();
+        }
+
+        GameResponse response = gameService.quitGame(user, user.getCurrentGameId());
+        if (response == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        return ResponseEntity.ok(response);
+    }
     // @PostMapping("/move/{gameName}")
     // public ResponseEntity<MakeMoveResponse> makeMove(@PathVariable String gameName) {
         

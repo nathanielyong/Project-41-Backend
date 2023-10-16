@@ -19,16 +19,16 @@ public class GamePlayerService {
         this.gameService = gameService;
     }
 
-    public void joinGame(Game game, User user) {
-        if (game.getState() != Game.State.PENDING_PLAYERS) {
-            throw new IllegalStateException("Game is full");
-        }
+    // public void joinGame(Game game, User user) {
+    //     if (game.getState() != Game.State.PENDING_PLAYERS) {
+    //         throw new IllegalStateException("Game is full");
+    //     }
 
-        GamePlayer gamePlayer = new GamePlayer(game, user);
-        gamePlayerRepository.save(gamePlayer);
+    //     GamePlayer gamePlayer = new GamePlayer(game, user);
+    //     gamePlayerRepository.save(gamePlayer);
 
-        if (game.getCapacity() == game.getPlayers().size()) {
-            gameService.play(game);
-        }
-    }
+    //     if (game.getCapacity() == game.getPlayers().size()) {
+    //         gameService.play(game);
+    //     }
+    // }
 }

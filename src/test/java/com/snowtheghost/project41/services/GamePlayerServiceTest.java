@@ -35,70 +35,70 @@ class GamePlayerServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void testJoinGame_Success() {
-        Game game = new Game("gameId", 10, 100, Game.Type.ROYALE);
-        User user = new User("userId", "username", "email", "encryptedPassword", "encryptedBalance", "connectedAccountId");
+    // @Test
+    // void testJoinGame_Success() {
+    //     Game game = new Game("gameId", 10, 100, Game.Type.ROYALE);
+    //     User user = new User("userId", "username", "email", "encryptedPassword", "encryptedBalance", "connectedAccountId");
 
-        doAnswer(invocation -> {
-            GamePlayer gamePlayer = invocation.getArgument(0);
-            game.getPlayers().add(gamePlayer);
-            return gamePlayer;
-        }).when(gamePlayerRepository).save(any(GamePlayer.class));
+    //     doAnswer(invocation -> {
+    //         GamePlayer gamePlayer = invocation.getArgument(0);
+    //         game.getPlayers().add(gamePlayer);
+    //         return gamePlayer;
+    //     }).when(gamePlayerRepository).save(any(GamePlayer.class));
 
-        gamePlayerService.joinGame(game, user);
+    //     gamePlayerService.joinGame(game, user);
 
-        verify(gamePlayerRepository).save(any(GamePlayer.class));
+    //     verify(gamePlayerRepository).save(any(GamePlayer.class));
 
-        assertNotNull(game.getPlayers());
-        assertEquals(1, game.getPlayers().size());
-        GamePlayer addedPlayer = game.getPlayers().get(0);
-        assertEquals(user, addedPlayer.getUser());
-        assertEquals(game, addedPlayer.getGame());
+    //     assertNotNull(game.getPlayers());
+    //     assertEquals(1, game.getPlayers().size());
+    //     GamePlayer addedPlayer = game.getPlayers().get(0);
+    //     assertEquals(user, addedPlayer.getUser());
+    //     assertEquals(game, addedPlayer.getGame());
 
-        verifyNoInteractions(gameService);
-    }
+    //     verifyNoInteractions(gameService);
+    // }
 
-    @Test
-    void testJoinGame_GameFull() {
-        Game game = new Game("gameId", 10, 100, Game.Type.ROYALE);
-        User user = new User("userId", "username", "email", "encryptedPassword", "encryptedBalance", "connectedAccountId");
+    // @Test
+    // void testJoinGame_GameFull() {
+    //     Game game = new Game("gameId", 10, 100, Game.Type.ROYALE);
+    //     User user = new User("userId", "username", "email", "encryptedPassword", "encryptedBalance", "connectedAccountId");
 
-        game.setState(Game.State.COMPLETED);
+    //     game.setState(Game.State.COMPLETED);
 
-        assertThrows(IllegalStateException.class, () -> gamePlayerService.joinGame(game, user));
+    //     assertThrows(IllegalStateException.class, () -> gamePlayerService.joinGame(game, user));
 
-        verify(gamePlayerRepository, never()).save(any(GamePlayer.class));
-        verifyNoInteractions(gameService);
-    }
+    //     verify(gamePlayerRepository, never()).save(any(GamePlayer.class));
+    //     verifyNoInteractions(gameService);
+    // }
 
-    @Test
-    void testJoinGame_PlayGame() {
-        Game game = new Game("gameId", 2, 100, Game.Type.ROYALE);
-        User user = new User("userId", "username", "email", "encryptedPassword", "encryptedBalance", "connectedAccountId");
+    // @Test
+    // void testJoinGame_PlayGame() {
+    //     Game game = new Game("gameId", 2, 100, Game.Type.ROYALE);
+    //     User user = new User("userId", "username", "email", "encryptedPassword", "encryptedBalance", "connectedAccountId");
 
-        doAnswer(invocation -> {
-            GamePlayer gamePlayer = invocation.getArgument(0);
-            game.getPlayers().add(gamePlayer);
-            return gamePlayer;
-        }).when(gamePlayerRepository).save(any(GamePlayer.class));
+    //     doAnswer(invocation -> {
+    //         GamePlayer gamePlayer = invocation.getArgument(0);
+    //         game.getPlayers().add(gamePlayer);
+    //         return gamePlayer;
+    //     }).when(gamePlayerRepository).save(any(GamePlayer.class));
 
-        gamePlayerService.joinGame(game, user);
+    //     gamePlayerService.joinGame(game, user);
 
-        verify(gamePlayerRepository).save(any(GamePlayer.class));
+    //     verify(gamePlayerRepository).save(any(GamePlayer.class));
 
-        assertNotNull(game.getPlayers());
-        assertEquals(1, game.getPlayers().size());
-        GamePlayer addedPlayer = game.getPlayers().get(0);
-        assertEquals(user, addedPlayer.getUser());
-        assertEquals(game, addedPlayer.getGame());
+    //     assertNotNull(game.getPlayers());
+    //     assertEquals(1, game.getPlayers().size());
+    //     GamePlayer addedPlayer = game.getPlayers().get(0);
+    //     assertEquals(user, addedPlayer.getUser());
+    //     assertEquals(game, addedPlayer.getGame());
 
-        verifyNoInteractions(gameService);
+    //     verifyNoInteractions(gameService);
 
-        User anotherUser = new User("anotherUserId", "anotherUsername", "anotherEmail", "anotherEncryptedPassword", "anotherEncryptedBalance", "anotherConnectedAccountId");
-        gamePlayerService.joinGame(game, anotherUser);
+    //     User anotherUser = new User("anotherUserId", "anotherUsername", "anotherEmail", "anotherEncryptedPassword", "anotherEncryptedBalance", "anotherConnectedAccountId");
+    //     gamePlayerService.joinGame(game, anotherUser);
 
-        verify(gamePlayerRepository, times(2)).save(any(GamePlayer.class));
-        verify(gameService).play(game);
-    }
+    //     verify(gamePlayerRepository, times(2)).save(any(GamePlayer.class));
+    //     verify(gameService).play(game);
+    // }
 }
