@@ -13,7 +13,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GetUserResponse {
 
-    public GetUserResponse(String userId, String username, String email, float balance, String connectedAccountId, String games) {}
+    public GetUserResponse(String userId, String username, String email, float balance, String connectedAccountId, String games, String currentGameId) {}
 
     @JsonProperty
     private String userId;
@@ -35,4 +35,7 @@ public class GetUserResponse {
 
     @JsonProperty
     private List<GetGameResponse> games;
+
+    @JsonProperty
+    private String currentGameId;
 }

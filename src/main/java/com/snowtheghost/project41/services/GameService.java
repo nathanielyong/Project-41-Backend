@@ -72,13 +72,14 @@ public class GameService {
             e.printStackTrace();
             return null;
         }
-
-        user.setCurrentGameId(gameId);
+        
+        userService.updateId(user, gameId);
         return response;
     }
 
     public GameResponse makeMove(User user, String gameId, String move) {
         GameResponse response;
+        System.out.println("python " + gameServicePath + " -game_id " + gameId + " -make_move " + move + " -player_move player1");
         ProcessBuilder pb = new ProcessBuilder("python", gameServicePath, "-game_id", gameId, "-make_move", move, "-player_move", "player1");
 
         try {
@@ -144,7 +145,7 @@ public class GameService {
             return null;
         }
 
-        user.setCurrentGameId(null);
+        userService.updateId(user, gameId);
         return response;
     }
 
