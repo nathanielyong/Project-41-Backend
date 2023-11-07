@@ -9,9 +9,7 @@ import com.snowtheghost.project41.api.models.responses.users.LoginResponse;
 import com.snowtheghost.project41.database.models.Game;
 import com.snowtheghost.project41.database.models.User;
 import com.snowtheghost.project41.services.AuthenticationService;
-import com.snowtheghost.project41.services.StripeService;
 import com.snowtheghost.project41.services.UserService;
-import com.stripe.exception.StripeException;
 import jakarta.annotation.security.PermitAll;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,48 +33,24 @@ public class UserController {
     private String backendUrl;
     private final UserService userService;
     private final AuthenticationService authenticationService;
-    private final StripeService stripeService;
 
     @Autowired
-    public UserController(UserService userService, AuthenticationService authenticationService, StripeService stripeService) {
+    public UserController(UserService userService, AuthenticationService authenticationService) {
         this.userService = userService;
         this.authenticationService = authenticationService;
-        this.stripeService = stripeService;
     }
 
     @PostMapping("/register")
     public ResponseEntity<CreateUserResponse> createUser(@RequestBody CreateUserRequest request) {
-//      TODO: Uncomment to use Stripe
-//        String connectedAccountId;
-//        try {
-//            connectedAccountId = stripeService.createConnectedAccount(request.getEmail());
-//        } catch (StripeException e) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-//        }
-
-//      TODO: Remove placeholder to use Stripe
-        String connectedAccountId = "Placeholder";
-
         String userId = UUID.randomUUID().toString();
         try {
-            userService.createUser(userId, request.getUsername(), request.getEmail(), request.getPassword(), connectedAccountId);
+            userService.createUser(userId, request.getUsername(), request.getEmail(), request.getPassword());
         } catch (DataIntegrityViolationException exception) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
-//      TODO: Uncomment to use Stripe
-//        String connectedAccountLinkUrl;
-//        try {
-//            connectedAccountLinkUrl = stripeService.createConnectedAccountLink(connectedAccountId);
-//        } catch (StripeException e) {
-//            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
-//        }
-
-//      TODO: Remove placeholder to use Stripe
-        String connectedAccountLinkUrl = "Placeholder";
-
         String token = authenticationService.generateToken(userId);
-        return ResponseEntity.created(URI.create(String.format(backendUrl + "/users/%s", userId))).body(new CreateUserResponse(token, connectedAccountLinkUrl));
+        return ResponseEntity.created(URI.create(String.format(backendUrl + "/users/%s", userId))).body(new CreateUserResponse(token));
     }
 
     @PostMapping("/login")
@@ -112,15 +86,6 @@ public class UserController {
         try {
             userId = authenticationService.getUserId(bearerToken);
             user = userService.getUser(userId);
-
-//      TODO: Uncomment to use Stripe
-//            if (!user.getConnectedAccountId().isEmpty()) {
-//                chargesEnabled = stripeService.isChargesEnabled(user.getConnectedAccountId());
-//            }
-//        } catch (EntityNotFoundException | StripeException e) {
-//            return ResponseEntity.notFound().build();
-//        }
-
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
@@ -133,7 +98,7 @@ public class UserController {
     }
 
     private GetUserResponse getUserResponse(User user, Boolean chargesEnabled) {
-        return new GetUserResponse(user.getUserId(), user.getUsername(), user.getEmail(), userService.getBalance(user), user.getConnectedAccountId(), chargesEnabled,
+        return new GetUserResponse(user.getUserId(), user.getUsername(), user.getEmail(), userService.getBalance(user), chargesEnabled,
                 user.getGames().stream().map(gamePlayer -> {
                     Game game = gamePlayer.getGame();
                     return new GetGameResponse(

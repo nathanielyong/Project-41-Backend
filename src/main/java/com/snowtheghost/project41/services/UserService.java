@@ -19,8 +19,8 @@ public class UserService {
         this.encryptionUtils = encryptionUtils;
     }
 
-    public void createUser(String userId, String username, String email, String password, String connectedAccountId) {
-        User user = new User(userId, username, email, encryptionUtils.encryptPassword(password), encryptionUtils.encryptBalance(0), connectedAccountId, "");
+    public void createUser(String userId, String username, String email, String password) {
+        User user = new User(userId, username, email, encryptionUtils.encryptPassword(password), encryptionUtils.encryptBalance(0), "");
         userRepository.save(user);
     }
 

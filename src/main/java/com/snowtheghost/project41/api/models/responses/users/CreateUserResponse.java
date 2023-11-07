@@ -10,7 +10,4 @@ public class CreateUserResponse {
 
     @JsonProperty
     private String token;
-
-    @JsonProperty
-    private String connectedAccountLinkUrl;
 }

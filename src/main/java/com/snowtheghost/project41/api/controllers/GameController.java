@@ -133,26 +133,26 @@ public class GameController {
     // }
 
 
-    // @GetMapping("/{gameId}")
-    // public ResponseEntity<GetGameResponse> getGame(@PathVariable String gameId) {
-    //     Game game;
-    //     try {
-    //         game = gameService.getGame(gameId);
-    //     } catch (EntityNotFoundException exception) {
-    //         return ResponseEntity.notFound().build();
-    //     }
-
-    //     GetGameResponse response = new GetGameResponse(
-    //             game.getGameId(),
-    //             game.getCapacity(),
-    //             game.getCost(),
-    //             game.getType(),
-    //             game.getState(),
-    //             game.getPlayerUsernames(),
-    //             game.getWinnerUsernamesToEarnings()
-    //     );
-    //     return ResponseEntity.ok(response);
-    // }
+//     @GetMapping("/{gameId}")
+//     public ResponseEntity<GetGameResponse> getGame(@PathVariable String gameId) {
+//         Game game;
+//         try {
+//             game = gameService.getGame(gameId);
+//         } catch (EntityNotFoundException exception) {
+//             return ResponseEntity.notFound().build();
+//         }
+//
+//         GetGameResponse response = new GetGameResponse(
+//                 game.getGameId(),
+//                 game.getCapacity(),
+//                 game.getCost(),
+//                 game.getType(),
+//                 game.getState(),
+//                 game.getPlayerUsernames(),
+//                 game.getWinnerUsernamesToEarnings()
+//         );
+//         return ResponseEntity.ok(response);
+//     }
 
     // @GetMapping()
     // public ResponseEntity<GetGamesResponse> getGames(

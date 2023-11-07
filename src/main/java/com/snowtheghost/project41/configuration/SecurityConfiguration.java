@@ -31,7 +31,6 @@ public class SecurityConfiguration {
                 .requestMatchers("/hello").permitAll()
                 .requestMatchers("/users/register").permitAll()
                 .requestMatchers("/users/login").permitAll()
-                .requestMatchers("/payment/stripe/checkout/handle/*").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS).permitAll() // Allow preflight requests
                 .requestMatchers("/error").permitAll()
                 .requestMatchers("/**").authenticated());

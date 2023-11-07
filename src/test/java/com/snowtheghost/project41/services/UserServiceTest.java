@@ -43,14 +43,13 @@ class UserServiceTest {
         String username = "username";
         String email = "email";
         String password = "password";
-        String connectedAccountId = "connectedAccountId";
         String encryptedPassword = "encryptedPassword";
         String encryptedBalance = "encryptedBalance";
 
         when(encryptionUtils.encryptPassword(password)).thenReturn(encryptedPassword);
         when(encryptionUtils.encryptBalance(0)).thenReturn(encryptedBalance);
 
-        userService.createUser(userId, username, email, password, connectedAccountId);
+        userService.createUser(userId, username, email, password);
 
         verify(userRepository).save(any());
     }
