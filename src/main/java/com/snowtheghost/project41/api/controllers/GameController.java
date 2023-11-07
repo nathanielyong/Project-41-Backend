@@ -1,6 +1,7 @@
 package com.snowtheghost.project41.api.controllers;
 
 import com.snowtheghost.project41.api.models.responses.games.GameResponse;
+import com.snowtheghost.project41.api.models.responses.games.GetGameAnalyticsResponse;
 import com.snowtheghost.project41.api.models.responses.games.GetGameResponse;
 import com.snowtheghost.project41.api.models.responses.games.GetGamesResponse;
 import com.snowtheghost.project41.database.models.Game;
@@ -95,48 +96,36 @@ public class GameController {
         return ResponseEntity.ok(response);
     }
 
-    // TODO: We should avoid using the Game model directly in this layer
-    @GetMapping("/{gameId}")
-    public ResponseEntity<GetGameResponse> getGame(@PathVariable String gameId) {
-        Game game;
-        try {
-            game = gameService.getGame(gameId);
-        } catch (EntityNotFoundException exception) {
-            return ResponseEntity.notFound().build();
-        }
-
-        GetGameResponse response = new GetGameResponse(
-                game.getGameId(),
-                game.getType(),
-                game.getState(),
-                game.getMetrics()
-        );
-        return ResponseEntity.ok(response);
-    }
-
     @GetMapping()
-    public ResponseEntity<GetGamesResponse> getGames(
-            @RequestParam(required = false) Integer capacity,
-            @RequestParam(required = false) Integer cost,
-            @RequestParam(required = false) Game.Type type,
-            @RequestParam(required = false) Game.State state
+    public ResponseEntity<GetGameAnalyticsResponse> getGameAnalytics(
+            @RequestParam(required = false) String gameType
     ) {
-        List<Game> games;
-        try {
-            games = gameService.getGames(capacity, cost, type, state);
-        } catch (EntityNotFoundException exception) {
-            return ResponseEntity.notFound().build();
-        }
-
-        List<GetGameResponse> responseGames = games.stream().map(game -> new GetGameResponse(
-                game.getGameId(),
-                game.getType(),
-                game.getState(),
-                game.getMetrics()
-        )).collect(Collectors.toList());
-
-        return ResponseEntity.ok(new GetGamesResponse(responseGames));
+        return ResponseEntity.ok(gameService.getGameAnalytics(gameType));
     }
+
+//    @GetMapping()
+//    public ResponseEntity<GetGamesResponse> getGames(
+//            @RequestParam(required = false) Integer capacity,
+//            @RequestParam(required = false) Integer cost,
+//            @RequestParam(required = false) Game.Type type,
+//            @RequestParam(required = false) Game.State state
+//    ) {
+//        List<Game> games;
+//        try {
+//            games = gameService.getGames(capacity, cost, type, state);
+//        } catch (EntityNotFoundException exception) {
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        List<GetGameResponse> responseGames = games.stream().map(game -> new GetGameResponse(
+//                game.getGameId(),
+//                game.getType(),
+//                game.getState(),
+//                game.getMetrics()
+//        )).collect(Collectors.toList());
+//
+//        return ResponseEntity.ok(new GetGamesResponse(responseGames));
+//    }
 
     // @PostMapping("/create")
     // public ResponseEntity<CreateGameResponse> createGame(@RequestBody CreateGameRequest request) {

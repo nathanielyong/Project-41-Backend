@@ -2,6 +2,7 @@ package com.snowtheghost.project41.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snowtheghost.project41.api.models.responses.games.GameResponse;
+import com.snowtheghost.project41.api.models.responses.games.GetGameAnalyticsResponse;
 import com.snowtheghost.project41.database.models.Game;
 import com.snowtheghost.project41.database.models.User;
 import com.snowtheghost.project41.database.repositories.GameRepository;
@@ -143,6 +144,13 @@ public class GameService {
 
         userService.updateId(user, gameId);
         return response;
+    }
+
+    // TODO: Implement
+    public GetGameAnalyticsResponse getGameAnalytics(String gameType) {
+        // TODO: Get game analytics
+        // TODO: Return analytics
+        return new GetGameAnalyticsResponse(0, List.of());
     }
 
     // public void createGame(Game game) {

@@ -2,27 +2,28 @@ package com.snowtheghost.project41.api.models.responses.games;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.snowtheghost.project41.database.models.Game;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Map;
 
 @Setter
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class GetGameResponse {
+public class GetGameAnalyticsResponse {
 
     @JsonProperty
-    private String gameId;
+    private int gamesPlayed;
 
     @JsonProperty
-    private List<String> userIds;
+    private List<Game> games;
 
-    @JsonProperty
-    private Game.Type type;
+    public static class Game {
 
-    @JsonProperty
-    private Game.State state;
+        @JsonProperty
+        private int winner;  // Tie: -1
+
+        @JsonProperty
+        private List<String> configuration;
+    }
 }
