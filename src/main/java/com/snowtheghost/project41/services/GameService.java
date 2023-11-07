@@ -27,15 +27,11 @@ public class GameService {
 
     @Value("${python.gameservice.path}")
     private String gameServicePath;
-    private final GameRepository gameRepository;
-    private final GameWinnerService gameWinnerService;
     private final UserService userService;
     private final Random random = new Random();
 
     @Autowired
-    public GameService(GameRepository gameRepository, GameWinnerService gameWinnerService, UserService userService) {
-        this.gameRepository = gameRepository;
-        this.gameWinnerService = gameWinnerService;
+    public GameService(UserService userService) {
         this.userService = userService;
     }
 

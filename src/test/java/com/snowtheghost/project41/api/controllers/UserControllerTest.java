@@ -45,6 +45,7 @@ class UserControllerTest {
         createUserRequest.setUsername("username");
         createUserRequest.setEmail("email@example.com");
         createUserRequest.setPassword("password");
+        createUserRequest.setType("PLAYER");
 
         String token = "token";
 
@@ -54,7 +55,7 @@ class UserControllerTest {
 
         assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
 
-        verify(userService).createUser(anyString(), eq(createUserRequest.getUsername()), eq(createUserRequest.getEmail()), eq(createUserRequest.getPassword()));
+        verify(userService).createPlayerUser(anyString(), eq(createUserRequest.getUsername()), eq(createUserRequest.getEmail()), eq(createUserRequest.getPassword()));
 
         verify(authenticationService).generateToken(anyString());
         verifyNoMoreInteractions(userService, authenticationService);
@@ -70,16 +71,13 @@ class UserControllerTest {
         user.setUserId("user-id");
 
         when(userService.getUserByEmail(loginUserRequest.getEmail())).thenReturn(user);
-        when(userService.isValidCredentials(user, loginUserRequest.getEmail(), loginUserRequest.getPassword())).thenReturn(true);
-        when(authenticationService.generateToken(user.getUserId())).thenReturn("token");
+        when(userService.loginUser(loginUserRequest.getEmail(), loginUserRequest.getPassword())).thenReturn("token");
 
         ResponseEntity<LoginResponse> responseEntity = userController.loginUser(loginUserRequest);
 
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
 
-        verify(userService).getUserByEmail(loginUserRequest.getEmail());
-        verify(userService).isValidCredentials(user, loginUserRequest.getEmail(), loginUserRequest.getPassword());
-        verify(authenticationService).generateToken(user.getUserId());
+        verify(userService).loginUser(loginUserRequest.getEmail(), loginUserRequest.getPassword());
         verifyNoMoreInteractions(userService, authenticationService);
     }
 
@@ -95,7 +93,7 @@ class UserControllerTest {
 
         assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
 
-        verify(userService).getUserByEmail(loginUserRequest.getEmail());
+        verify(userService).loginUser(loginUserRequest.getEmail(), loginUserRequest.getPassword());
         verifyNoMoreInteractions(userService, authenticationService);
     }
 
@@ -109,14 +107,13 @@ class UserControllerTest {
         user.setUserId("user-id");
 
         when(userService.getUserByEmail(loginUserRequest.getEmail())).thenReturn(user);
-        when(userService.isValidCredentials(user, loginUserRequest.getEmail(), loginUserRequest.getPassword())).thenReturn(false);
+        when(userService.loginUser(loginUserRequest.getEmail(), loginUserRequest.getPassword())).thenReturn(null);
 
         ResponseEntity<LoginResponse> responseEntity = userController.loginUser(loginUserRequest);
 
         assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
 
-        verify(userService).getUserByEmail(loginUserRequest.getEmail());
-        verify(userService).isValidCredentials(user, loginUserRequest.getEmail(), loginUserRequest.getPassword());
+        verify(userService).loginUser(loginUserRequest.getEmail(), loginUserRequest.getPassword());
         verifyNoMoreInteractions(userService, authenticationService);
     }
 
@@ -126,6 +123,7 @@ class UserControllerTest {
 
         User user = new User();
         user.setUserId(userId);
+        user.setType(User.Type.PLAYER);
 
         when(userService.getUser(userId)).thenReturn(user);
 
@@ -160,6 +158,7 @@ class UserControllerTest {
 
         User user = new User();
         user.setUserId(userId);
+        user.setType(User.Type.PLAYER);
 
         when(authenticationService.getUserId(bearerToken)).thenReturn(userId);
         when(userService.getUser(userId)).thenReturn(user);

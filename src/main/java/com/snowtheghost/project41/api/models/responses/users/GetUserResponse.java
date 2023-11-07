@@ -28,11 +28,11 @@ public class GetUserResponse {
     private Float balance;
 
     @JsonProperty
-    private Boolean chargesEnabled;
-
-    @JsonProperty
     private List<GetGameResponse> games;
 
     @JsonProperty
     private String currentGameId;
+
+    @JsonProperty
+    private String type;
 }

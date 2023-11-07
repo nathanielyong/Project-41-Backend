@@ -20,4 +20,8 @@ public class CreateUserRequest {
     @NotNull
     @JsonProperty
     private String password;
+
+    @NotNull
+    @JsonProperty
+    private String type;
 }

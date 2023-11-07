@@ -12,15 +12,25 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final EncryptionUtils encryptionUtils;
+    private final AuthenticationService authenticationService;
 
     @Autowired
-    public UserService(UserRepository userRepository, EncryptionUtils encryptionUtils) {
+    public UserService(UserRepository userRepository, EncryptionUtils encryptionUtils, AuthenticationService authenticationService) {
         this.userRepository = userRepository;
         this.encryptionUtils = encryptionUtils;
+        this.authenticationService = authenticationService;
     }
 
-    public void createUser(String userId, String username, String email, String password) {
-        User user = new User(userId, username, email, encryptionUtils.encryptPassword(password), encryptionUtils.encryptBalance(0), "");
+    public void createPlayerUser(String userId, String username, String email, String password) {
+        createUser(userId, username, email, password, User.Type.PLAYER);
+    }
+
+    public void createResearcherUser(String userId, String username, String email, String password) {
+        createUser(userId, username, email, password, User.Type.RESEARCHER);
+    }
+
+    private void createUser(String userId, String username, String email, String password, User.Type type) {
+        User user = new User(userId, username, email, encryptionUtils.encryptPassword(password), encryptionUtils.encryptBalance(0), "", type);
         userRepository.save(user);
     }
 
@@ -37,8 +47,8 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public boolean isValidCredentials(User user, String email, String password) {
-        return user.getEmail().equals(email) && user.getEncryptedPassword().equals(encryptionUtils.encryptPassword(password));
+    private boolean isValidPassword(User user, String password) {
+        return user.getEncryptedPassword().equals(encryptionUtils.encryptPassword(password));
     }
 
     public void addFunds(String userId, int amount) {
@@ -59,5 +69,14 @@ public class UserService {
 
     public float getBalance(User user) {
         return (float) encryptionUtils.decryptBalance(user.getEncryptedBalance()) / 100;
+    }
+
+    public String loginUser(String email, String password) {
+        User user = getUserByEmail(email);
+        if (user != null && isValidPassword(user, password)) {
+            return authenticationService.generateToken(user.getUserId());
+        }
+
+        return null;
     }
 }

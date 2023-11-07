@@ -1,16 +1,12 @@
 package com.snowtheghost.project41.services;
 
-import com.snowtheghost.project41.database.models.User;
 import com.snowtheghost.project41.database.repositories.UserRepository;
 import com.snowtheghost.project41.utils.EncryptionUtils;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -49,7 +45,7 @@ class UserServiceTest {
         when(encryptionUtils.encryptPassword(password)).thenReturn(encryptedPassword);
         when(encryptionUtils.encryptBalance(0)).thenReturn(encryptedBalance);
 
-        userService.createUser(userId, username, email, password);
+        userService.createPlayerUser(userId, username, email, password);
 
         verify(userRepository).save(any());
     }

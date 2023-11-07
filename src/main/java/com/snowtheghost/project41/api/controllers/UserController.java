@@ -18,7 +18,14 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.util.UUID;
@@ -44,7 +51,13 @@ public class UserController {
     public ResponseEntity<CreateUserResponse> createUser(@RequestBody CreateUserRequest request) {
         String userId = UUID.randomUUID().toString();
         try {
-            userService.createUser(userId, request.getUsername(), request.getEmail(), request.getPassword());
+            if ("RESEARCHER".equals(request.getType())) {
+                userService.createResearcherUser(userId, request.getUsername(), request.getEmail(), request.getPassword());
+            } else if ("PLAYER".equals(request.getType())) {
+                userService.createPlayerUser(userId, request.getUsername(), request.getEmail(), request.getPassword());
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
         } catch (DataIntegrityViolationException exception) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
@@ -56,16 +69,15 @@ public class UserController {
     @PostMapping("/login")
     @PermitAll
     public ResponseEntity<LoginResponse> loginUser(@RequestBody LoginUserRequest request) {
-        User user = userService.getUserByEmail(request.getEmail());
-
-        if (user != null && userService.isValidCredentials(user, request.getEmail(), request.getPassword())) {
-            String token = authenticationService.generateToken(user.getUserId());
+        String token = userService.loginUser(request.getEmail(), request.getPassword());
+        if (token != null) {
             return ResponseEntity.ok(new LoginResponse(token));
         }
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
+    // TODO: Refactor such that the User model is not accessed directly
     @GetMapping("/{userId}")
     public ResponseEntity<GetUserResponse> getUser(@PathVariable String userId) {
         User user;
@@ -82,7 +94,6 @@ public class UserController {
     public ResponseEntity<GetUserResponse> getActiveUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken) {
         String userId;
         User user;
-        Boolean chargesEnabled = false;
         try {
             userId = authenticationService.getUserId(bearerToken);
             user = userService.getUser(userId);
@@ -90,15 +101,11 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(getUserResponse(user, chargesEnabled));
+        return ResponseEntity.ok(getUserResponse(user));
     }
 
     private GetUserResponse getUserResponse(User user) {
-        return getUserResponse(user, null);
-    }
-
-    private GetUserResponse getUserResponse(User user, Boolean chargesEnabled) {
-        return new GetUserResponse(user.getUserId(), user.getUsername(), user.getEmail(), userService.getBalance(user), chargesEnabled,
+        return new GetUserResponse(user.getUserId(), user.getUsername(), user.getEmail(), userService.getBalance(user),
                 user.getGames().stream().map(gamePlayer -> {
                     Game game = gamePlayer.getGame();
                     return new GetGameResponse(
@@ -110,6 +117,6 @@ public class UserController {
                             game.getPlayerUsernames(),
                             game.getWinnerUsernamesToEarnings()
                     );
-                }).collect(Collectors.toList()), user.getCurrentGameId());
+                }).collect(Collectors.toList()), user.getCurrentGameId(), user.getType().toString());
     }
 }
