@@ -1,42 +1,21 @@
 package com.snowtheghost.project41.api.controllers;
 
-import com.snowtheghost.project41.api.models.requests.games.CreateGameRequest;
-import com.snowtheghost.project41.api.models.responses.games.CreateGameResponse;
-import com.snowtheghost.project41.api.models.responses.games.GetGameResponse;
-import com.snowtheghost.project41.api.models.responses.games.GetGamesResponse;
-import com.snowtheghost.project41.database.models.Game;
-import com.snowtheghost.project41.database.models.User;
 import com.snowtheghost.project41.services.AuthenticationService;
-import com.snowtheghost.project41.services.GamePlayerService;
 import com.snowtheghost.project41.services.GameService;
 import com.snowtheghost.project41.services.UserService;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 class GameControllerTest {
 
     @Mock
     private GameService gameService;
-
-    @Mock
-    private GamePlayerService gamePlayerService;
 
     @Mock
     private UserService userService;
