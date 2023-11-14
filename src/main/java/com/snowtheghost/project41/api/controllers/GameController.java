@@ -67,6 +67,8 @@ public class GameController {
         @RequestParam String gameType, 
         @RequestParam String player1_type,
         @RequestParam String player2_type,
+        @RequestParam(required = false) String num_rounds,
+        @RequestParam(required = false) String endowment,
         @RequestHeader(HttpHeaders.AUTHORIZATION) String token
     ) {
         User user;
@@ -77,7 +79,7 @@ public class GameController {
             return ResponseEntity.notFound().build();
         }
 
-        GameResponse response = gameService.startGame(user, gameType, player1_type, player2_type);
+        GameResponse response = gameService.startGame(user, gameType, player1_type, player2_type, num_rounds, endowment);
         if (response == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }

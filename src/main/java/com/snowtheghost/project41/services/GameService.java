@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,11 +37,20 @@ public class GameService {
         this.userService = userService;
     }
 
-    public GameResponse startGame(User user, String gameType, String player1_type, String player2_type) {
+    public GameResponse startGame(User user, String gameType, String player1_type, String player2_type, String num_rounds, String endowment) {
         GameResponse response;
         String gameId = UUID.randomUUID().toString();
-        //System.out.println("python " + gameServicePath + " -game_id " + gameId + " -game_type " + gameType + " -player1_type " + player1_type + " -player2_type " + player2_type);
-        ProcessBuilder pb = new ProcessBuilder("python", gameServicePath, "-game_id", gameId, "-game_type", gameType, "-player1_type", player1_type, "-player2_type", player2_type);
+        List<String> args = new ArrayList<>(Arrays.asList("python", gameServicePath, "-game_id", gameId, "-game_type", gameType, "-player1_type", player1_type, "-player2_type", player2_type));
+        if (num_rounds!= null) {
+            args.add("-num_rounds");
+            args.add(num_rounds);
+        }
+        if (endowment != null) {
+            args.add("-endowment");
+            args.add(endowment);
+        }
+        System.out.println(String.join(" ", args));
+        ProcessBuilder pb = new ProcessBuilder(args);
 
         try {
             pb.redirectErrorStream(true);
