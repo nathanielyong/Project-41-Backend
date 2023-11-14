@@ -20,6 +20,22 @@ Before running this project, ensure that you have the following installed on you
 
 The backend server should now be running on http://localhost:8080.
 
+## Deployment
+
+1. Log in to Docker Hub
+2. Copy the desired version of `gameservice` into the root project directory
+3. Build the project: `mvn clean install`
+4. Build the Docker image: `docker build -t project41301/backend .`
+5. Push the Docker image to Docker Hub: `docker push project41301/backend`
+6. [Deploy the Docker image on Render](https://dashboard.render.com/web/srv-cklksc0710pc73d80vs0)
+7. Verify the Docker image hash with the deployed version
+
+If the database structure has been changed, we will need to take the following steps after deployment:
+1. Set the `DATASOURCE_STRATEGY` environment variable to `create` through the Render dashboard
+2. Deploy the latest Docker image (if not deployed automatically by Render)
+3. Set the `DATASOURCE_STRATEGY` environment variable to `update` through the Render dashboard
+4. Deploy the latest Docker image (if not deployed automatically by Render)
+
 ## Usage
 
 Describe how to use the project, provide examples, and explain any necessary configurations or setup steps.
