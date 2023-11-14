@@ -17,6 +17,10 @@ public class GetGameAnalyticsResponse {
     @JsonProperty
     private List<Game> games;
 
+    public int getNumPlayed() {
+        return games == null ? 0 : games.size();
+    }
+
     public static class Game {
         @JsonProperty
         private String id;

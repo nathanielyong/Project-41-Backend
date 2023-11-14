@@ -183,7 +183,6 @@ public class GameService {
             e.printStackTrace();
             return null;
         }
-
         return response;
     }
 
