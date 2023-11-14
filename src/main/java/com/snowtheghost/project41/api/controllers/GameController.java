@@ -96,7 +96,7 @@ public class GameController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping()
+    @GetMapping("/getGameAnalytics")
     public ResponseEntity<GetGameAnalyticsResponse> getGameAnalytics(
             @RequestParam(required = false) String gameType
     ) {
