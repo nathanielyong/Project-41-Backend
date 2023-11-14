@@ -24,9 +24,6 @@ class GameServiceTest {
     private GameRepository gameRepository;
 
     @Mock
-    private GameWinnerService gameWinnerService;
-
-    @Mock
     private UserService userService;
 
     @InjectMocks

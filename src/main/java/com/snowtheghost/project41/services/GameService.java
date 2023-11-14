@@ -2,6 +2,7 @@ package com.snowtheghost.project41.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snowtheghost.project41.api.models.responses.games.GameResponse;
+import com.snowtheghost.project41.api.models.responses.games.GetGameAnalyticsResponse;
 import com.snowtheghost.project41.database.models.Game;
 import com.snowtheghost.project41.database.models.User;
 import com.snowtheghost.project41.database.repositories.GameRepository;
@@ -19,7 +20,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -30,7 +33,6 @@ public class GameService {
     @Value("${python.gameservice.path}")
     private String gameServicePath;
     private final UserService userService;
-    private final Random random = new Random();
 
     @Autowired
     public GameService(UserService userService) {
@@ -153,6 +155,45 @@ public class GameService {
         }
 
         userService.updateId(user, gameId);
+        return response;
+    }
+
+    public GetGameAnalyticsResponse getGameAnalytics(String gameType) {
+        GetGameAnalyticsResponse response;
+        List<String> args = new ArrayList<>(Arrays.asList("python", gameServicePath, "-retrieve_game_data"));
+        if (gameType != null) {
+            args.add("-game_data_type");
+            args.add(gameType);
+        }
+        System.out.println(String.join(" ", args));
+        ProcessBuilder pb = new ProcessBuilder(args);
+        try {
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+            System.out.println("Retrieving game data");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder output = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+            
+            String jsonString = output.toString().strip();
+            int exitCode = process.waitFor();
+            if (exitCode == 0) {
+                System.out.println("Game data retrieved successfully");
+                System.out.println("JSON: " + jsonString);
+                ObjectMapper objectMapper = new ObjectMapper();
+                response = objectMapper.readValue(jsonString, GetGameAnalyticsResponse.class);
+            } else {
+                System.out.println("Error retrieving game data");
+                System.out.println("JSON: " + jsonString);
+                return null;
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
         return response;
     }
 

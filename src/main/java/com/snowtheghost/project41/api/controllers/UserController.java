@@ -110,12 +110,9 @@ public class UserController {
                     Game game = gamePlayer.getGame();
                     return new GetGameResponse(
                             game.getGameId(),
-                            game.getCapacity(),
-                            game.getCost(),
+                            game.getPlayerIds(),
                             game.getType(),
-                            game.getState(),
-                            game.getPlayerUsernames(),
-                            game.getWinnerUsernamesToEarnings()
+                            game.getState()
                     );
                 }).collect(Collectors.toList()), user.getCurrentGameId(), user.getType().toString());
     }

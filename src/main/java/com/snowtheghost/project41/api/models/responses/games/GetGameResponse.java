@@ -18,20 +18,11 @@ public class GetGameResponse {
     private String gameId;
 
     @JsonProperty
-    private int capacity;
-
-    @JsonProperty
-    private int cost;
+    private List<String> userIds;
 
     @JsonProperty
     private Game.Type type;
 
     @JsonProperty
     private Game.State state;
-
-    @JsonProperty
-    private List<String> players;
-
-    @JsonProperty
-    private Map<String, Integer> winners;
 }
