@@ -18,11 +18,8 @@ public class GetGameResponse {
     private String gameId;
 
     @JsonProperty
-    private List<String> userIds;
+    private String type;
 
     @JsonProperty
-    private Game.Type type;
-
-    @JsonProperty
-    private Game.State state;
+    private String state;
 }

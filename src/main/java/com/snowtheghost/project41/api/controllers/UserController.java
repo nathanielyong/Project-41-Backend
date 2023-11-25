@@ -105,15 +105,6 @@ public class UserController {
     }
 
     private GetUserResponse getUserResponse(User user) {
-        return new GetUserResponse(user.getUserId(), user.getUsername(), user.getEmail(), userService.getBalance(user),
-                user.getGames().stream().map(gamePlayer -> {
-                    Game game = gamePlayer.getGame();
-                    return new GetGameResponse(
-                            game.getGameId(),
-                            game.getPlayerIds(),
-                            game.getType(),
-                            game.getState()
-                    );
-                }).collect(Collectors.toList()), user.getCurrentGameId(), user.getType().toString());
+        return new GetUserResponse(user.getUserId(), user.getUsername(), user.getEmail(), userService.getBalance(user), user.getCurrentGameId(), user.getType().toString());
     }
 }

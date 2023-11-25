@@ -3,6 +3,7 @@ package com.snowtheghost.project41.services;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snowtheghost.project41.api.models.responses.games.GameResponse;
 import com.snowtheghost.project41.api.models.responses.games.GetGameAnalyticsResponse;
+import com.snowtheghost.project41.api.models.responses.games.GetGameResponse;
 import com.snowtheghost.project41.database.models.Game;
 import com.snowtheghost.project41.database.models.User;
 import com.snowtheghost.project41.database.repositories.GameRepository;
@@ -205,11 +206,10 @@ public class GameService {
     //     return gameRepository.getReferenceById(gameId);
     // }
 
-    // public List<Game> getGames(Integer capacity, Integer cost, Game.Type type, Game.State state) {
-    //     ExampleMatcher exampleMatcher = ExampleMatcher.matching().withIgnoreNullValues();
-    //     Example<Game> example = Example.of(new Game(null, capacity, cost, type, state), exampleMatcher);
-    //     return gameRepository.findAll(example);
-    // }
+     public List<GetGameResponse> getGames(String researcherId) {
+         // TODO: Implement
+         return List.of(new GetGameResponse("Mock ID", "Mock Type", "Mock State"));
+     }
 
     // public void play(Game game) {
     //     game.setState(Game.State.PENDING_RESULTS);

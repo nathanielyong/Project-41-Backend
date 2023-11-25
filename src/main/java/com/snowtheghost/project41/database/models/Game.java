@@ -30,14 +30,6 @@ public class Game {
         this.state = State.PENDING_PLAYERS;
     }
 
-    public Game(@NotNull String gameId, @NotNull Integer capacity, @NotNull Integer cost, @NotNull Type type, @NotNull State state) {
-        this.gameId = gameId;
-        this.capacity = capacity;
-        this.cost = cost;
-        this.type = type;
-        this.state = state;
-    }
-
     @Id
     @NotNull(message = "Game ID is required.")
     private String gameId;

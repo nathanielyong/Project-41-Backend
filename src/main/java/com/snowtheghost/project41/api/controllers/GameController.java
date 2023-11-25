@@ -105,29 +105,17 @@ public class GameController {
         return ResponseEntity.ok(gameService.getGameAnalytics(gameType));
     }
 
-//    @GetMapping()
-//    public ResponseEntity<GetGamesResponse> getGames(
-//            @RequestParam(required = false) Integer capacity,
-//            @RequestParam(required = false) Integer cost,
-//            @RequestParam(required = false) Game.Type type,
-//            @RequestParam(required = false) Game.State state
-//    ) {
-//        List<Game> games;
-//        try {
-//            games = gameService.getGames(capacity, cost, type, state);
-//        } catch (EntityNotFoundException exception) {
-//            return ResponseEntity.notFound().build();
-//        }
-//
-//        List<GetGameResponse> responseGames = games.stream().map(game -> new GetGameResponse(
-//                game.getGameId(),
-//                game.getType(),
-//                game.getState(),
-//                game.getMetrics()
-//        )).collect(Collectors.toList());
-//
-//        return ResponseEntity.ok(new GetGamesResponse(responseGames));
-//    }
+    @GetMapping()
+    public ResponseEntity<GetGamesResponse> getGames(@RequestParam String researcherId) {
+        List<GetGameResponse> responseGames;
+        try {
+            responseGames = gameService.getGames(researcherId);
+        } catch (EntityNotFoundException exception) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(new GetGamesResponse(responseGames));
+    }
 
     // @PostMapping("/create")
     // public ResponseEntity<CreateGameResponse> createGame(@RequestBody CreateGameRequest request) {
