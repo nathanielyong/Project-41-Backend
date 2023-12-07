@@ -1,5 +1,6 @@
 package com.snowtheghost.project41.services;
 
+import com.snowtheghost.project41.database.models.User;
 import com.snowtheghost.project41.database.repositories.UserRepository;
 import com.snowtheghost.project41.utils.EncryptionUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.util.Optional;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
@@ -48,7 +51,9 @@ class UserServiceTest {
     @Test
     void testDeleteUser() {
         String userId = "userId";
+        User user = new User();
 
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         userService.deleteUser(userId);
         verify(userRepository).save(any());
     }
