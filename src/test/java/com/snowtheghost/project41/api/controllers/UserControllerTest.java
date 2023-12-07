@@ -191,4 +191,20 @@ class UserControllerTest {
         verify(userService).getUser(userId);
         verifyNoMoreInteractions(userService, authenticationService);
     }
+
+    @Test
+    void testDeleteUser_Success() {
+        String bearerToken = "Bearer token";
+        String userId = "user-id";
+
+        when(authenticationService.getUserId(bearerToken)).thenReturn(userId);
+
+        ResponseEntity<Object> responseEntity = userController.deleteUser(bearerToken);
+        verify(userService).deleteUser(userId);
+
+        assertEquals(HttpStatus.ACCEPTED, responseEntity.getStatusCode());
+
+        verify(authenticationService).getUserId(bearerToken);
+        verifyNoMoreInteractions(userService, authenticationService);
+    }
 }

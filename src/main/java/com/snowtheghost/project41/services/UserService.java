@@ -30,7 +30,14 @@ public class UserService {
     }
 
     private void createUser(String userId, String username, String email, String password, User.Type type) {
-        User user = new User(userId, username, email, encryptionUtils.encryptPassword(password), encryptionUtils.encryptBalance(0), "", type);
+        User user = new User(userId,
+                username,
+                email,
+                encryptionUtils.encryptPassword(password),
+                encryptionUtils.encryptBalance(0),
+                "",
+                type,
+                true);
         userRepository.save(user);
     }
 
@@ -73,10 +80,18 @@ public class UserService {
 
     public String loginUser(String email, String password) {
         User user = getUserByEmail(email);
-        if (user != null && isValidPassword(user, password)) {
+        if (user != null && isValidPassword(user, password) && user.isActive()) {
             return authenticationService.generateToken(user.getUserId());
         }
 
         return null;
+    }
+
+    public void deleteUser(String userId) {
+        User user = getUser(userId);
+        if (user != null) {
+            user.setActive(false);
+            userRepository.save(user);
+        }
     }
 }

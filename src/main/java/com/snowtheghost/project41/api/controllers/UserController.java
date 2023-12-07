@@ -2,11 +2,9 @@ package com.snowtheghost.project41.api.controllers;
 
 import com.snowtheghost.project41.api.models.requests.users.CreateUserRequest;
 import com.snowtheghost.project41.api.models.requests.users.LoginUserRequest;
-import com.snowtheghost.project41.api.models.responses.games.GetGameResponse;
 import com.snowtheghost.project41.api.models.responses.users.CreateUserResponse;
 import com.snowtheghost.project41.api.models.responses.users.GetUserResponse;
 import com.snowtheghost.project41.api.models.responses.users.LoginResponse;
-import com.snowtheghost.project41.database.models.Game;
 import com.snowtheghost.project41.database.models.User;
 import com.snowtheghost.project41.services.AuthenticationService;
 import com.snowtheghost.project41.services.UserService;
@@ -18,18 +16,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -106,5 +96,12 @@ public class UserController {
 
     private GetUserResponse getUserResponse(User user) {
         return new GetUserResponse(user.getUserId(), user.getUsername(), user.getEmail(), userService.getBalance(user), user.getCurrentGameId(), user.getType().toString());
+    }
+
+    @DeleteMapping()
+    public ResponseEntity<Object> deleteUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken) {
+        String userId = authenticationService.getUserId(bearerToken);
+        userService.deleteUser(userId);
+        return ResponseEntity.accepted().build();
     }
 }

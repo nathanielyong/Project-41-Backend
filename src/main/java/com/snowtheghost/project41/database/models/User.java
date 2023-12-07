@@ -18,7 +18,16 @@ import java.util.List;
 @NoArgsConstructor
 public class User {
 
-    public User(@NotNull String userId, @NotNull String username, @NotNull String email, @NotNull String encryptedPassword, @NotNull String encryptedBalance, @NotNull String currentGameId, @NotNull Type type) {
+    public User(
+            @NotNull String userId,
+            @NotNull String username,
+            @NotNull String email,
+            @NotNull String encryptedPassword,
+            @NotNull String encryptedBalance,
+            @NotNull String currentGameId,
+            @NotNull Type type,
+            @NotNull boolean active
+    ) {
         this.username = username;
         this.userId = userId;
         this.email = email;
@@ -26,6 +35,7 @@ public class User {
         this.encryptedBalance = encryptedBalance;
         this.currentGameId = currentGameId;
         this.type = type;
+        this.active = active;
     }
 
     @Id
@@ -55,7 +65,11 @@ public class User {
     @NotNull(message = "Balance is required")
     private String encryptedBalance;
 
-    @NotNull private Type type;
+    @NotNull
+    private Type type;
+
+    @NotNull
+    private boolean active;
 
     public enum Type {
         ADMIN,
