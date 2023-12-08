@@ -13,20 +13,13 @@ import java.util.Map;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetGamesResponse {
+public class GetGamePointsResponse {
     @JsonProperty
-    private List<Game> games;
+    private String id;
 
-    public int getNumPlayed() {
-        return games == null ? 0 : games.size();
-    }
+    @JsonProperty
+    private int player1;
 
-    public static class Game {
-        @JsonProperty
-        private String id;
-
-        @JsonProperty 
-        @JsonDeserialize(using = GameObjectDeserializer.class)
-        private GameResponse game_object;
-    }
+    @JsonProperty
+    private int player2;
 }

@@ -18,5 +18,14 @@ public class GameResponse {
     private String message;
 
     @JsonProperty
+    private String game_type;
+
+    @JsonProperty 
+    private int player1_points;
+
+    @JsonProperty 
+    private int player2_points;
+
+    @JsonProperty
     private Map<String, Object> gameState;
 }
