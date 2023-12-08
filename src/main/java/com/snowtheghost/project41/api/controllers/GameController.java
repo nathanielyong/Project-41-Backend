@@ -121,19 +121,11 @@ public class GameController {
 
     @GetMapping("/getGamePoints")
     public ResponseEntity<GetGamePointsResponse> getGamePoints(
-        @RequestHeader(HttpHeaders.AUTHORIZATION) String token
+        @RequestParam String gameId
     ) {
-        User user;
-        try {
-            String userId = authenticationService.getUserId(token);
-            user = userService.getUser(userId);
-        } catch (EntityNotFoundException exception) {
-            return ResponseEntity.notFound().build();
-        }
-
         GetGamePointsResponse response;
         try {
-            response = gameService.getGamePoints(user.getCurrentGameId());
+            response = gameService.getGamePoints(gameId);
         } catch (EntityNotFoundException exception) {
             return ResponseEntity.notFound().build();
         }
