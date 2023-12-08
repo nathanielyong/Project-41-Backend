@@ -4,6 +4,7 @@ import com.snowtheghost.project41.api.models.responses.games.GameResponse;
 import com.snowtheghost.project41.api.models.responses.games.GetGameAnalyticsResponse;
 import com.snowtheghost.project41.api.models.responses.games.GetGameResponse;
 import com.snowtheghost.project41.api.models.responses.games.GetGamesResponse;
+import com.snowtheghost.project41.api.models.responses.games.GetGamePointsResponse;
 import com.snowtheghost.project41.database.models.Game;
 import com.snowtheghost.project41.database.models.User;
 import com.snowtheghost.project41.services.AuthenticationService;
@@ -42,6 +43,7 @@ public class GameController {
         @RequestParam String gameType, 
         @RequestParam String player1_type,
         @RequestParam String player2_type,
+        @RequestParam String researcherId,
         @RequestParam(required = false) String num_rounds,
         @RequestParam(required = false) String endowment,
         @RequestHeader(HttpHeaders.AUTHORIZATION) String token
@@ -54,7 +56,7 @@ public class GameController {
             return ResponseEntity.notFound().build();
         }
 
-        GameResponse response = gameService.startGame(user, gameType, player1_type, player2_type, num_rounds, endowment);
+        GameResponse response = gameService.startGame(user, gameType, player1_type, player2_type, num_rounds, endowment, researcherId);
         if (response == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
@@ -82,7 +84,7 @@ public class GameController {
     }
 
     @PostMapping("/quit")
-    public ResponseEntity<GameResponse> makeMove(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+    public ResponseEntity<GameResponse> quitGame(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         User user;
         try {
             String userId = authenticationService.getUserId(token);
@@ -105,16 +107,37 @@ public class GameController {
         return ResponseEntity.ok(gameService.getGameAnalytics(gameType));
     }
 
-    @GetMapping()
+    @GetMapping("/getGames")
     public ResponseEntity<GetGamesResponse> getGames(@RequestParam String researcherId) {
-        List<GetGameResponse> responseGames;
+        GetGamesResponse responseGames;
         try {
             responseGames = gameService.getGames(researcherId);
         } catch (EntityNotFoundException exception) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(new GetGamesResponse(responseGames));
+        return ResponseEntity.ok(responseGames);
+    }
+
+    @GetMapping("/getGamePoints")
+    public ResponseEntity<GetGamePointsResponse> getGamePoints(
+        @RequestHeader(HttpHeaders.AUTHORIZATION) String token
+    ) {
+        User user;
+        try {
+            String userId = authenticationService.getUserId(token);
+            user = userService.getUser(userId);
+        } catch (EntityNotFoundException exception) {
+            return ResponseEntity.notFound().build();
+        }
+
+        GetGamePointsResponse response;
+        try {
+            response = gameService.getGamePoints(user.getCurrentGameId());
+        } catch (EntityNotFoundException exception) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(response);
     }
 
     // @PostMapping("/create")
