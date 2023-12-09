@@ -56,7 +56,7 @@ public class GameController {
             return ResponseEntity.notFound().build();
         }
 
-        GameResponse response = gameService.startGame(user, gameType, player1_type, player2_type, num_rounds, endowment, researcherId);
+        GameResponse response = gameService.startGame(user, gameType, player1_type, player2_type, researcherId, num_rounds, endowment);
         if (response == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
@@ -102,13 +102,15 @@ public class GameController {
 
     @GetMapping("/getGameAnalytics")
     public ResponseEntity<GetGameAnalyticsResponse> getGameAnalytics(
-            @RequestParam(required = false) String gameType
+        @RequestParam(required = false) String gameType
     ) {
         return ResponseEntity.ok(gameService.getGameAnalytics(gameType));
     }
 
     @GetMapping("/getGames")
-    public ResponseEntity<GetGamesResponse> getGames(@RequestParam String researcherId) {
+    public ResponseEntity<GetGamesResponse> getGames(
+        @RequestParam String researcherId
+    ) {
         GetGamesResponse responseGames;
         try {
             responseGames = gameService.getGames(researcherId);
