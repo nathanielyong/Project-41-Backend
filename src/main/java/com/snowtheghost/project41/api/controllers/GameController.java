@@ -102,13 +102,15 @@ public class GameController {
 
     @GetMapping("/getGameAnalytics")
     public ResponseEntity<GetGameAnalyticsResponse> getGameAnalytics(
-            @RequestParam(required = false) String gameType
+        @RequestParam(required = false) String gameType
     ) {
         return ResponseEntity.ok(gameService.getGameAnalytics(gameType));
     }
 
     @GetMapping("/getGames")
-    public ResponseEntity<GetGamesResponse> getGames(@RequestParam String researcherId) {
+    public ResponseEntity<GetGamesResponse> getGames(
+        @RequestParam String researcherId
+    ) {
         GetGamesResponse responseGames;
         try {
             responseGames = gameService.getGames(researcherId);
