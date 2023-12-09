@@ -56,7 +56,7 @@ public class GameController {
             return ResponseEntity.notFound().build();
         }
 
-        GameResponse response = gameService.startGame(user, gameType, player1_type, player2_type, num_rounds, endowment, researcherId);
+        GameResponse response = gameService.startGame(user, gameType, player1_type, player2_type, researcherId, num_rounds, endowment);
         if (response == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }

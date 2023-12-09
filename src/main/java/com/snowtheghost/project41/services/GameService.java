@@ -42,7 +42,7 @@ public class GameService {
         this.userService = userService;
     }
 
-    public GameResponse startGame(User user, String gameType, String player1_type, String player2_type, String num_rounds, String endowment, String researcherId) {
+    public GameResponse startGame(User user, String gameType, String player1_type, String player2_type, String researcherId, String num_rounds, String endowment) {
         GameResponse response;
         String gameId = UUID.randomUUID().toString();
         List<String> args = new ArrayList<>(Arrays.asList("python", gameServicePath, "-game_id", gameId, "-game_type", gameType, "-player1_type", player1_type, "-player2_type", player2_type, "-researcher_id", researcherId));
