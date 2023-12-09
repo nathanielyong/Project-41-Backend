@@ -1,34 +1,21 @@
 package com.snowtheghost.project41.services;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.snowtheghost.project41.api.models.responses.games.GameResponse;
 import com.snowtheghost.project41.api.models.responses.games.GetGameAnalyticsResponse;
-import com.snowtheghost.project41.api.models.responses.games.GetGameResponse;
-import com.snowtheghost.project41.api.models.responses.games.GetGamesResponse;
 import com.snowtheghost.project41.api.models.responses.games.GetGamePointsResponse;
-import com.snowtheghost.project41.database.models.Game;
+import com.snowtheghost.project41.api.models.responses.games.GetGamesResponse;
 import com.snowtheghost.project41.database.models.User;
-import com.snowtheghost.project41.database.repositories.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class GameService {
@@ -242,6 +229,72 @@ public class GameService {
             return null;
         }
         return response;
+    }
+
+    public String getGamesCsv(String researcherId) {
+        StringBuilder response = new StringBuilder();
+        List<String> args = new ArrayList<>(Arrays.asList("python", gameServicePath, "-retrieve_game_data", "-researcher_id", researcherId));
+        System.out.println(String.join(" ", args));
+        ProcessBuilder pb = new ProcessBuilder(args);
+        try {
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+            System.out.println("Retrieving game data");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder output = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+
+            String jsonString = output.toString().strip();
+            int exitCode = process.waitFor();
+            if (exitCode == 0) {
+                System.out.println("Game data retrieved successfully");
+                System.out.println("JSON: " + jsonString);
+                ObjectMapper objectMapper = new ObjectMapper();
+
+                JsonNode jsonResponse = objectMapper.readTree(jsonString);
+                JsonNode jsonTree = objectMapper.readTree(jsonResponse.elements().next().toString());
+                CsvMapper csvMapper = new CsvMapper();
+
+                response.append(csvMapper.writeValueAsString(List.of(
+                        "id",
+                        "game_type",
+                        "player1_points",
+                        "player2_points",
+                        "winner",
+                        "payoff1",
+                        "payoff2"
+                )));
+
+                Iterator<JsonNode> elements = jsonTree.elements();
+                while (elements.hasNext()) {
+                    JsonNode node = elements.next();
+                    response.append(csvMapper.writeValueAsString(List.of(
+                            List.of(
+                                    node.get("id"),
+                                    node.get("game_object").get("game_type"),
+                                    node.get("game_object").get("player1_points"),
+                                    node.get("game_object").get("player2_points"),
+                                    node.get("game_object").get("gameState").get("winner"),
+                                    node.get("game_object").get("gameState").get("payoff1"),
+                                    node.get("game_object").get("gameState").get("payoff2"),
+                                    node.get("game_object").get("status")
+                            )
+                    )));
+                }
+            } else {
+                System.out.println("Error retrieving game data");
+                System.out.println("JSON: " + jsonString);
+                return null;
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return response.toString();
     }
 
     public GetGamePointsResponse getGamePoints(String gameId) {

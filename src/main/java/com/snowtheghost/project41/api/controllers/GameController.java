@@ -2,10 +2,8 @@ package com.snowtheghost.project41.api.controllers;
 
 import com.snowtheghost.project41.api.models.responses.games.GameResponse;
 import com.snowtheghost.project41.api.models.responses.games.GetGameAnalyticsResponse;
-import com.snowtheghost.project41.api.models.responses.games.GetGameResponse;
-import com.snowtheghost.project41.api.models.responses.games.GetGamesResponse;
 import com.snowtheghost.project41.api.models.responses.games.GetGamePointsResponse;
-import com.snowtheghost.project41.database.models.Game;
+import com.snowtheghost.project41.api.models.responses.games.GetGamesResponse;
 import com.snowtheghost.project41.database.models.User;
 import com.snowtheghost.project41.services.AuthenticationService;
 import com.snowtheghost.project41.services.GameService;
@@ -16,9 +14,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -119,6 +114,20 @@ public class GameController {
         }
 
         return ResponseEntity.ok(responseGames);
+    }
+
+    @GetMapping("/getGamesCsv")
+    public ResponseEntity<String> getGamesCsv(
+            @RequestParam String researcherId
+    ) {
+        String response;
+        try {
+            response = gameService.getGamesCsv(researcherId);
+        } catch (EntityNotFoundException exception) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/getGamePoints")
