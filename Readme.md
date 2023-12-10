@@ -36,9 +36,8 @@ If the database structure has been changed, we will need to take the following s
 3. Set the `DATASOURCE_STRATEGY` environment variable to `update` through the Render dashboard
 4. Deploy the latest Docker image (if not deployed automatically by Render)
 
-## Usage
-
-Describe how to use the project, provide examples, and explain any necessary configurations or setup steps.
+## Automated Tests
+All unit tests will run automatically upon building the application with Maven. You may add to the suite of tests under the tests folder in the project directory. 
 
 ## License
 
