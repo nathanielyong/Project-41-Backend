@@ -299,7 +299,7 @@ public class GameService {
 
     public GetGamePointsResponse getGamePoints(String gameId) {
         GetGamePointsResponse response;
-        List<String> args = new ArrayList<>(Arrays.asList("python", gameServicePath, "-retrieve_game_points", "-game_id", gameId));
+        List<String> args = new ArrayList<>(Arrays.asList("python", gameServicePath, "-retrieve_game_points", "-game_id", String.format("\"%s\"", gameId)));
 
         System.out.println(String.join(" ", args));
         ProcessBuilder pb = new ProcessBuilder(args);

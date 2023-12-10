@@ -14,12 +14,17 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetGamePointsResponse {
-    @JsonProperty
-    private String id;
+    @JsonProperty 
+    private List<GamePointObject> games;
 
-    @JsonProperty
-    private int player1;
+    private static class GamePointObject {
+        @JsonProperty
+        private String id;
 
-    @JsonProperty
-    private int player2;
+        @JsonProperty
+        private int player1;
+
+        @JsonProperty
+        private int player2;
+    }
 }
