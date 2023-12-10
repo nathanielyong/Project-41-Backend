@@ -29,8 +29,41 @@ public class GameService {
         this.userService = userService;
     }
 
+    public <ResponseType> ResponseType callGameService(List<String> args, Class<ResponseType> responseType) {
+        ResponseType response;
+        System.out.println(String.join(" ", args));
+        ProcessBuilder pb = new ProcessBuilder(args);
+
+        try {
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder output = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+            
+            String jsonString = output.toString().strip();
+            int exitCode = process.waitFor();
+            if (exitCode == 0) {
+                System.out.println("Game service called successfully");
+                System.out.println("JSON: " + jsonString);
+                ObjectMapper objectMapper = new ObjectMapper();
+                response = objectMapper.readValue(jsonString, responseType);
+            } else {
+                System.out.println("Error occured while calling game service");
+                System.out.println("JSON: " + jsonString);
+                return null;
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return response;
+    }
+
     public GameResponse startGame(User user, String gameType, String player1_type, String player2_type, String researcherId, String num_rounds, String endowment) {
-        GameResponse response;
         String gameId = UUID.randomUUID().toString();
         List<String> args = new ArrayList<>(Arrays.asList("python", gameServicePath, "-game_id", gameId, "-game_type", gameType, "-player1_type", player1_type, "-player2_type", player2_type, "-researcher_id", researcherId));
         if (num_rounds!= null) {
@@ -41,150 +74,35 @@ public class GameService {
             args.add("-endowment");
             args.add(endowment);
         }
-        System.out.println(String.join(" ", args));
-        ProcessBuilder pb = new ProcessBuilder(args);
-
-        try {
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
-            System.out.println("Starting game");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder output = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
-            }
-            
-            String jsonString = output.toString().strip();
-            int exitCode = process.waitFor();
-            if (exitCode == 0) {
-                System.out.println("Game started successfully");
-                System.out.println("JSON: " + jsonString);
-                ObjectMapper objectMapper = new ObjectMapper();
-                response = objectMapper.readValue(jsonString, GameResponse.class);
-            } else {
-                System.out.println("Error starting game");
-                System.out.println("JSON: " + jsonString);
-                return null;
-            }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            return null;
-        }
         
-        userService.updateId(user, gameId);
+        GameResponse response = callGameService(args, GameResponse.class);
+        if (response != null) {
+            userService.updateId(user, gameId);        
+        }       
         return response;
     }
 
     public GameResponse makeMove(User user, String gameId, String move) {
-        GameResponse response;
-        System.out.println("python " + gameServicePath + " -game_id " + gameId + " -make_move " + move + " -player_move player1");
-        ProcessBuilder pb = new ProcessBuilder("python", gameServicePath, "-game_id", gameId, "-make_move", move, "-player_move", "player1");
-
-        try {
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
-            System.out.println("Making move");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder output = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
-            }
-            
-            String jsonString = output.toString().strip();
-            int exitCode = process.waitFor();
-            if (exitCode == 0) {
-                System.out.println("Move made successfully");
-                System.out.println("JSON: " + jsonString);
-                ObjectMapper objectMapper = new ObjectMapper();
-                response = objectMapper.readValue(jsonString, GameResponse.class);
-            } else {
-                System.out.println("Error making move");
-                System.out.println("JSON: " + jsonString);
-                return null;
-            }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            return null;
-        }
-
-        return response;
+        List<String> args = new ArrayList<>(Arrays.asList("python", gameServicePath, "-game_id", gameId, "-make_move", move, "-player_move", "player1"));
+        return callGameService(args, GameResponse.class);
     }
 
     public GameResponse quitGame(User user, String gameId) {
-        GameResponse response;
-        ProcessBuilder pb = new ProcessBuilder("python", gameServicePath, "-game_id", gameId, "-delete_game");
-
-        try {
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
-            System.out.println("Deleting game");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder output = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
-            }
-            
-            String jsonString = output.toString().strip();
-            int exitCode = process.waitFor();
-            if (exitCode == 0) {
-                System.out.println("Game deleted successfully");
-                System.out.println("JSON: " + jsonString);
-                ObjectMapper objectMapper = new ObjectMapper();
-                response = objectMapper.readValue(jsonString, GameResponse.class);
-            } else {
-                System.out.println("Error deleting game");
-                System.out.println("JSON: " + jsonString);
-                return null;
-            }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            return null;
+        List<String> args = new ArrayList<>(Arrays.asList("python", gameServicePath, "-game_id", gameId, "-delete_game"));
+        GameResponse response = callGameService(args, GameResponse.class);
+        if (response != null) {
+            userService.updateId(user, gameId);
         }
-
-        userService.updateId(user, gameId);
         return response;
     }
 
     public GetGameAnalyticsResponse getGameAnalytics(String gameType) {
-        GetGameAnalyticsResponse response;
         List<String> args = new ArrayList<>(Arrays.asList("python", gameServicePath, "-retrieve_game_data"));
         if (gameType != null) {
             args.add("-game_data_type");
             args.add(gameType);
         }
-        System.out.println(String.join(" ", args));
-        ProcessBuilder pb = new ProcessBuilder(args);
-        try {
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
-            System.out.println("Retrieving game data");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder output = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
-            }
-            
-            String jsonString = output.toString().strip();
-            int exitCode = process.waitFor();
-            if (exitCode == 0) {
-                System.out.println("Game data retrieved successfully");
-                System.out.println("JSON: " + jsonString);
-                ObjectMapper objectMapper = new ObjectMapper();
-                response = objectMapper.readValue(jsonString, GetGameAnalyticsResponse.class);
-            } else {
-                System.out.println("Error retrieving game data");
-                System.out.println("JSON: " + jsonString);
-                return null;
-            }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            return null;
-        }
-        return response;
+        return callGameService(args, GetGameAnalyticsResponse.class);
     }
 
     // public void createGame(Game game) {
@@ -196,39 +114,8 @@ public class GameService {
     // }
 
      public GetGamesResponse getGames(String researcherId) {
-        GetGamesResponse response;
         List<String> args = new ArrayList<>(Arrays.asList("python", gameServicePath, "-retrieve_game_data", "-researcher_id", researcherId));
-
-        System.out.println(String.join(" ", args));
-        ProcessBuilder pb = new ProcessBuilder(args);
-        try {
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
-            System.out.println("Retrieving game data");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder output = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
-            }
-            
-            String jsonString = output.toString().strip();
-            int exitCode = process.waitFor();
-            if (exitCode == 0) {
-                System.out.println("Game data retrieved successfully");
-                System.out.println("JSON: " + jsonString);
-                ObjectMapper objectMapper = new ObjectMapper();
-                response = objectMapper.readValue(jsonString, GetGamesResponse.class);
-            } else {
-                System.out.println("Error retrieving game data");
-                System.out.println("JSON: " + jsonString);
-                return null;
-            }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            return null;
-        }
-        return response;
+        return callGameService(args, GetGamesResponse.class);
     }
 
     public String getGamesCsv(String researcherId) {
@@ -298,39 +185,8 @@ public class GameService {
     }
 
     public GetGamePointsResponse getGamePoints(String gameId) {
-        GetGamePointsResponse response;
         List<String> args = new ArrayList<>(Arrays.asList("python", gameServicePath, "-retrieve_game_points", "-game_id", String.format("\"%s\"", gameId)));
-
-        System.out.println(String.join(" ", args));
-        ProcessBuilder pb = new ProcessBuilder(args);
-        try {
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
-            System.out.println("Retrieving game points");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder output = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
-            }
-            
-            String jsonString = output.toString().strip();
-            int exitCode = process.waitFor();
-            if (exitCode == 0) {
-                System.out.println("Game points retrieved successfully");
-                System.out.println("JSON: " + jsonString);
-                ObjectMapper objectMapper = new ObjectMapper();
-                response = objectMapper.readValue(jsonString, GetGamePointsResponse.class);
-            } else {
-                System.out.println("Error retrieving game points");
-                System.out.println("JSON: " + jsonString);
-                return null;
-            }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            return null;
-        }
-        return response;
+        return callGameService(args, GetGamePointsResponse.class);
     }
 
     // public void play(Game game) {
