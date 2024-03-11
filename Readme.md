@@ -1,6 +1,6 @@
 # Project41 Backend
 
-The private API for the project41 application
+The API for the project41 application
 
 ## Prerequisites
 
